@@ -1,10 +1,15 @@
 import ee
 
 import dagster as dg
+from afolu.partitions import wanted_zones_partitions
 from afolu.resources import AFOLUClassMapResource, LabelResource
 
 
-def class_mask_factory(top_prefix: str, class_name: str) -> dg.AssetsDefinition:
+def class_mask_factory(
+    top_prefix: str,
+    class_name: str,
+    partitions_def: dg.PartitionsDefinition | None = None,
+) -> dg.AssetsDefinition:
     @dg.asset(
         name=class_name,
         key_prefix=[top_prefix, "class_mask"],
@@ -12,8 +17,10 @@ def class_mask_factory(top_prefix: str, class_name: str) -> dg.AssetsDefinition:
             "bbox": dg.AssetIn([top_prefix, "bbox", "ee"]),
             "glc30": dg.AssetIn([top_prefix, "glc30"]),
         },
+        partitions_def=partitions_def,
         io_manager_key="ee_manager",
         group_name=f"{top_prefix}_class_mask",
+        tags={"partitions": "zone"} if partitions_def is not None else None,
     )
     def _asset(
         class_map_resource: AFOLUClassMapResource,
@@ -40,7 +47,9 @@ def class_mask_factory(top_prefix: str, class_name: str) -> dg.AssetsDefinition:
     return _asset
 
 
-def forests_primary_factory(top_prefix: str) -> dg.AssetsDefinition:
+def forests_primary_factory(
+    top_prefix: str, partitions_def: dg.PartitionsDefinition | None = None
+) -> dg.AssetsDefinition:
     @dg.asset(
         name="forests_primary",
         key_prefix=[top_prefix, "class_mask"],
@@ -48,8 +57,10 @@ def forests_primary_factory(top_prefix: str) -> dg.AssetsDefinition:
             "forests_img": dg.AssetIn([top_prefix, "class_mask", "forests"]),
             "forests_mask": dg.AssetIn([top_prefix, "forests_mask"]),
         },
+        partitions_def=partitions_def,
         io_manager_key="ee_manager",
         group_name=f"{top_prefix}_class_mask",
+        tags={"partitions": "zone"} if partitions_def is not None else None,
     )
     def _asset(
         forests_img: ee.image.Image,
@@ -60,7 +71,9 @@ def forests_primary_factory(top_prefix: str) -> dg.AssetsDefinition:
     return _asset
 
 
-def forests_secondary_factory(top_prefix: str) -> dg.AssetsDefinition:
+def forests_secondary_factory(
+    top_prefix: str, partitions_def: dg.PartitionsDefinition | None = None
+) -> dg.AssetsDefinition:
     @dg.asset(
         name="forests_secondary",
         key_prefix=[top_prefix, "class_mask"],
@@ -70,8 +83,10 @@ def forests_secondary_factory(top_prefix: str) -> dg.AssetsDefinition:
                 [top_prefix, "class_mask", "forests_primary"],
             ),
         },
+        partitions_def=partitions_def,
         io_manager_key="ee_manager",
         group_name=f"{top_prefix}_class_mask",
+        tags={"partitions": "zone"} if partitions_def is not None else None,
     )
     def _asset(
         forests_img: ee.image.Image,
@@ -82,7 +97,9 @@ def forests_secondary_factory(top_prefix: str) -> dg.AssetsDefinition:
     return _asset
 
 
-def pastures_factory(top_prefix: str) -> dg.AssetsDefinition:
+def pastures_factory(
+    top_prefix: str, partitions_def: dg.PartitionsDefinition | None = None
+) -> dg.AssetsDefinition:
     @dg.asset(
         name="pastures",
         key_prefix=[top_prefix, "class_mask"],
@@ -94,8 +111,10 @@ def pastures_factory(top_prefix: str) -> dg.AssetsDefinition:
                 [top_prefix, "pastures_random_mask"],
             ),
         },
+        partitions_def=partitions_def,
         io_manager_key="ee_manager",
         group_name=f"{top_prefix}_class_mask",
+        tags={"partitions": "zone"} if partitions_def is not None else None,
     )
     def _asset(
         grasslands_to_pastures_img: ee.image.Image,
@@ -106,7 +125,9 @@ def pastures_factory(top_prefix: str) -> dg.AssetsDefinition:
     return _asset
 
 
-def grasslands_merged_factory(top_prefix: str) -> dg.AssetsDefinition:
+def grasslands_merged_factory(
+    top_prefix: str, partitions_def: dg.PartitionsDefinition | None = None
+) -> dg.AssetsDefinition:
     @dg.asset(
         name="grasslands_merged",
         key_prefix=[top_prefix, "class_mask"],
@@ -119,8 +140,10 @@ def grasslands_merged_factory(top_prefix: str) -> dg.AssetsDefinition:
                 [top_prefix, "pastures_random_mask"],
             ),
         },
+        partitions_def=partitions_def,
         io_manager_key="ee_manager",
         group_name=f"{top_prefix}_class_mask",
+        tags={"partitions": "zone"} if partitions_def is not None else None,
     )
     def _asset(
         grasslands_to_pastures_img: ee.image.Image,
@@ -135,7 +158,7 @@ def grasslands_merged_factory(top_prefix: str) -> dg.AssetsDefinition:
 
 
 assets = [
-    class_mask_factory(top_prefix, class_name)
+    class_mask_factory(top_prefix, class_name, partitions_def)
     for class_name in (
         "croplands",
         "forests_mangroves",
@@ -148,14 +171,18 @@ assets = [
         "shrublands",
         "other",
     )
-    for top_prefix in ("amazon", "mexico", "small")
+    for top_prefix, partitions_def in zip(
+        ["amazon", "mexico", "small"], [None, None, wanted_zones_partitions]
+    )
 ] + [
-    factory(top_prefix)
+    factory(top_prefix, partitions_def)
     for factory in (
         forests_primary_factory,
         forests_secondary_factory,
         pastures_factory,
         grasslands_merged_factory,
     )
-    for top_prefix in ("amazon", "mexico", "small")
+    for top_prefix, partitions_def in zip(
+        ["amazon", "mexico", "small"], [None, None, wanted_zones_partitions]
+    )
 ]

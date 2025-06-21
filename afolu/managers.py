@@ -12,6 +12,7 @@ import pandas as pd
 import rasterio as rio
 import shapely
 from affine import Affine
+from matplotlib.figure import Figure
 from rasterio.crs import CRS
 
 import dagster as dg
@@ -266,3 +267,18 @@ class TextManager(BaseManager):
 
         else:
             assert_never(type(fpath))
+
+
+class FigureManager(BaseManager):
+    def handle_output(self, context: dg.OutputContext, obj: Figure) -> None:
+        fpath = self._get_path(context)
+        if isinstance(fpath, dict):
+            err = "FigureManager does not support multiple partitions."
+            raise TypeError(err)
+        fpath.parent.mkdir(exist_ok=True, parents=True)
+
+        obj.savefig(fpath, bbox_inches="tight", dpi=300)
+
+    def load_input(self, context: dg.InputContext) -> None:
+        err = "FigureManager does not support loading input."
+        raise NotImplementedError(err)

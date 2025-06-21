@@ -2,14 +2,20 @@ import ee
 
 import dagster as dg
 
+from afolu.partitions import wanted_zones_partitions
 
-def glc30_factory(top_prefix: str) -> dg.AssetsDefinition:
+
+def glc30_factory(
+    top_prefix: str, partitions_def: dg.PartitionsDefinition | None = None
+) -> dg.AssetsDefinition:
     @dg.asset(
         name="glc30",
         key_prefix=top_prefix,
         ins={"bbox": dg.AssetIn([top_prefix, "bbox", "ee"])},
+        partitions_def=partitions_def,
         io_manager_key="ee_manager",
         group_name=f"{top_prefix}_load",
+        tags={"partitions": "zone"} if partitions_def is not None else None,
     )
     def _asset(bbox: ee.geometry.Geometry) -> ee.image.Image:
         return (
@@ -24,13 +30,17 @@ def glc30_factory(top_prefix: str) -> dg.AssetsDefinition:
     return _asset
 
 
-def forests_mask_factory(top_prefix: str) -> dg.AssetsDefinition:
+def forests_mask_factory(
+    top_prefix: str, partitions_def: dg.PartitionsDefinition | None = None
+) -> dg.AssetsDefinition:
     @dg.asset(
         name="forests_mask",
         key_prefix=top_prefix,
         ins={"bbox": dg.AssetIn([top_prefix, "bbox", "ee"])},
+        partitions_def=partitions_def,
         io_manager_key="ee_manager",
         group_name=f"{top_prefix}_load",
+        tags={"partitions": "zone"} if partitions_def is not None else None,
     )
     def _asset(bbox: ee.geometry.Geometry) -> ee.image.Image:
         return (
@@ -47,7 +57,9 @@ def forests_mask_factory(top_prefix: str) -> dg.AssetsDefinition:
     return _asset
 
 
-def pastures_random_mask_factory(top_prefix: str) -> dg.AssetsDefinition:
+def pastures_random_mask_factory(
+    top_prefix: str, partitions_def: dg.PartitionsDefinition | None = None
+) -> dg.AssetsDefinition:
     @dg.asset(
         name="pastures_random_mask",
         key_prefix=top_prefix,
@@ -55,8 +67,10 @@ def pastures_random_mask_factory(top_prefix: str) -> dg.AssetsDefinition:
             "bbox": dg.AssetIn([top_prefix, "bbox", "ee"]),
             "glc30": dg.AssetIn([top_prefix, "glc30"]),
         },
+        partitions_def=partitions_def,
         io_manager_key="ee_manager",
         group_name=f"{top_prefix}_load",
+        tags={"partitions": "zone"} if partitions_def is not None else None,
     )
     def _asset(bbox: ee.geometry.Geometry, glc30: ee.image.Image) -> ee.image.Image:
         proj = glc30.projection().getInfo()
@@ -76,7 +90,9 @@ def pastures_random_mask_factory(top_prefix: str) -> dg.AssetsDefinition:
 
 
 dassets = [
-    factory(top_prefix)
+    factory(top_prefix, partitions_def)
     for factory in [glc30_factory, forests_mask_factory, pastures_random_mask_factory]
-    for top_prefix in ["amazon", "mexico", "small"]
+    for top_prefix, partitions_def in zip(
+        ["amazon", "mexico", "small"], [None, None, wanted_zones_partitions]
+    )
 ]

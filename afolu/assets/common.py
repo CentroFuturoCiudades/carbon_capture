@@ -49,12 +49,19 @@ def get_raster_area(raster: ee.image.Image, bbox: ee.geometry.Geometry) -> float
     )
 
 
-def transition_table_fixed_factory(top_prefix: str) -> dg.AssetsDefinition:
+def transition_table_fixed_factory(
+    top_prefix: str,
+    partitions_def: dg.PartitionsDefinition | None = None,
+    name_suffix: str = "",
+) -> dg.AssetsDefinition:
+    if partitions_def is None:
+        partitions_def = year_pair_partitions
+
     @dg.asset(
-        name="table_fixed",
+        name=f"table_fixed{name_suffix}",
         key_prefix=[top_prefix, "transition"],
-        ins={"table": dg.AssetIn([top_prefix, "transition", "table"])},
-        partitions_def=year_pair_partitions,
+        ins={"table": dg.AssetIn([top_prefix, "transition", f"table{name_suffix}"])},
+        partitions_def=partitions_def,
         io_manager_key="dataframe_manager",
         group_name=f"{top_prefix}_transition",
     )
@@ -78,12 +85,23 @@ def transition_table_fixed_factory(top_prefix: str) -> dg.AssetsDefinition:
     return _asset
 
 
-def transition_table_frac_factory(top_prefix: str) -> dg.AssetsDefinition:
+def transition_table_frac_factory(
+    top_prefix: str,
+    partitions_def: dg.PartitionsDefinition | None = None,
+    name_suffix: str = "",
+) -> dg.AssetsDefinition:
+    if partitions_def is None:
+        partitions_def = year_pair_partitions
+
     @dg.asset(
-        name="table_frac",
+        name=f"table_frac{name_suffix}",
         key_prefix=[top_prefix, "transition"],
-        ins={"cross_fixed": dg.AssetIn([top_prefix, "transition", "table_fixed"])},
-        partitions_def=year_pair_partitions,
+        ins={
+            "cross_fixed": dg.AssetIn(
+                [top_prefix, "transition", f"table_fixed{name_suffix}"]
+            )
+        },
+        partitions_def=partitions_def,
         io_manager_key="dataframe_manager",
         group_name=f"{top_prefix}_transition",
     )
@@ -99,15 +117,26 @@ def transition_table_frac_factory(top_prefix: str) -> dg.AssetsDefinition:
     return _asset
 
 
-def transition_cube_factory(top_prefix: str) -> dg.AssetsDefinition:
+def transition_cube_factory(
+    top_prefix: str,
+    partitions_def: dg.PartitionsDefinition | None = None,
+    name_suffix: str = "",
+) -> dg.AssetsDefinition:
     @dg.asset(
-        name="cube",
+        name=f"cube{name_suffix}",
         key_prefix=[top_prefix, "transition"],
-        ins={"table_frac_map": dg.AssetIn([top_prefix, "transition", "table_frac"])},
+        ins={
+            "table_frac_map": dg.AssetIn(
+                [top_prefix, "transition", f"table_frac{name_suffix}"]
+            )
+        },
+        partitions_def=partitions_def,
         io_manager_key="dataframe_manager",
         group_name=f"{top_prefix}_transition",
     )
     def _asset(table_frac_map: dict[str, pd.DataFrame]) -> pd.DataFrame:
+        table_frac_map = {key.split("|")[0]: df for key, df in table_frac_map.items()}
+
         time_periods = [
             f"{start_year}_{end_year}"
             for start_year, end_year in zip(

@@ -10,9 +10,14 @@ dependencies = [
     "earthengine-api>=1.5.13",
     "geedim>=1.9.0",
     "geemap>=0.35.3",
+    "mpl-chord-diagram>=0.4.1",
+    "nbformat>=5.10.4",
     "pandas>=2.2.3",
     "pandas-stubs>=2.2.3.250308",
+    "plotly>=6.0.1",
+    "python-dotenv>=1.1.0",
     "seaborn>=0.13.2",
+    "setuptools>=80.7.0",
     "sisepuede",
     "toml>=0.10.2",
 ]
@@ -21,6 +26,7 @@ dependencies = [
 dev = [
     "basedpyright>=1.29.1",
     "ipykernel>=6.29.5",
+    "notebook>=7.4.2",
     "pre-commit>=4.2.0",
 ]
 
@@ -45,4 +51,4 @@ extend-exclude = ["**/dagster/*"]
 
 [tool.ruff.lint]
 select = ["ALL"]
-ignore = ["D", "PLR0913", "ANN003", "PD901", "PTH123"]
+ignore = ["D", "PLR0913", "ANN003", "PD901", "PTH123", "PLR2004"]

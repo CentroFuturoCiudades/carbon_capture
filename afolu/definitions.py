@@ -1,3 +1,5 @@
+import os
+
 import ee
 import toml
 
@@ -6,6 +8,7 @@ from afolu import assets
 from afolu.managers import (
     DataFrameManager,
     EarthEngineManager,
+    FigureManager,
     GeoDataFrameManager,
     JSONManager,
     NumPyManager,
@@ -23,6 +26,7 @@ from afolu.resources import (
     LabelResource,
     PathResource,
     SelectedAreaResource,
+    ZoneBufferResource,
 )
 
 ee.Initialize(project="ee-ursa-test")
@@ -35,7 +39,11 @@ path_resource = PathResource(
     data_path=dg.EnvVar("DATA_PATH"),
     ghsl_path=dg.EnvVar("GHSL_PATH"),
     population_grids_path=dg.EnvVar("POPULATION_GRIDS_PATH"),
+    amazonas_path=dg.EnvVar("AMAZONAS_PATH"),
+    natural_oceans_path=dg.EnvVar("NATURAL_OCEANS_PATH"),
 )
+
+print(os.getenv("DATA_PATH"))
 
 with open("./id_map.toml", encoding="utf8") as f:
     config = toml.load(f)
@@ -51,6 +59,9 @@ for key, spec in config.items():
     all_resources_map[f"{key}_map"] = resource
 
 class_map_resource = AFOLUClassMapResource(**spec_map)
+
+zone_buffer_resource = ZoneBufferResource(buffers={"COL+San José del Guaviare": 1_000})
+
 
 # Managers
 dataframe_manager = DataFrameManager(
@@ -85,6 +96,10 @@ text_manager = TextManager(
     path_resource=path_resource,
     extension=".txt",
 )
+figure_manager = FigureManager(
+    path_resource=path_resource,
+    extension=".jpg",
+)
 
 
 # Definitions
@@ -97,6 +112,8 @@ defs = dg.Definitions.merge(
                         assets.bbox,
                         assets.class_masks,
                         assets.load,
+                        assets.emissions,
+                        assets.zones,
                     ],
                 ),
             )
@@ -116,9 +133,12 @@ defs = dg.Definitions.merge(
             label_pair_partitions=label_pair_partitions,
             text_manager=text_manager,
             selected_area_resource=selected_area_resource,
+            zone_buffer_resource=zone_buffer_resource,
+            figure_manager=figure_manager,
             **all_resources_map,
         ),
     ),
+    assets.plot.defs,
     assets.large.defs,
     assets.small.defs,
 )
