@@ -7,10 +7,10 @@ import sisepuede.manager.sisepuede_examples as sxl
 import sisepuede.manager.sisepuede_file_structure as sfs
 import sisepuede.models.afolu as mafl
 import sisepuede.utilities._toolbox as sf
-
 from sisepuede.core.model_variable import ModelVariable
-from afolu.partitions import wanted_zones_partitions
+
 import dagster as dg
+from afolu.partitions import wanted_zones_partitions
 from afolu.resources import PathResource
 
 _MODVAR_NAME_EF_CONVERSION = "Land Use Conversion Emission Factor"
@@ -373,7 +373,6 @@ def generate_model_objects() -> tuple[
     key_prefix="small",
     ins={
         "areas": dg.AssetIn(["small", "area", "table_merged"]),
-        "areas_frac": dg.AssetIn(["small", "area", "table_frac"]),
         "transitions": dg.AssetIn(["small", "transition", "cube"]),
     },
     partitions_def=wanted_zones_partitions,
@@ -384,13 +383,16 @@ def emissions_small(
     context: dg.AssetExecutionContext,
     path_resource: PathResource,
     areas: pd.DataFrame,
-    areas_frac: pd.DataFrame,
     transitions: pd.DataFrame,
 ) -> pd.DataFrame:
     iso, _ = context.partition_key.split("+")
 
     # Initialize SISEPUEDE objects
     examples, _, model_afolu, regions, time_periods = generate_model_objects()
+
+    temp = areas.set_index("label")
+
+    areas_frac = temp.div(temp.sum(axis=0), axis=1).reset_index(names="label")
 
     # run model
     dict_ursa_data = {
@@ -412,7 +414,7 @@ def emissions_small(
 
     return model_afolu(
         df_in,
-    )
+    ).set_index("time_period")
 
 
 @dg.asset(
@@ -435,4 +437,6 @@ def transitions_emissions(df_out: pd.DataFrame) -> pd.DataFrame:
         err = f"Unable to find {model_afolu.modvar_lndu_emissions_conv} in {df_out}"
         raise ValueError(err)
 
-    return df_vars[[x for x in df_vars.columns if np.abs(df_vars[x]).max() > 0.0001]]
+    out = df_vars[[x for x in df_vars.columns if np.abs(df_vars[x]).max() > 0.0001]]
+    out.index.name = "time_period"
+    return out

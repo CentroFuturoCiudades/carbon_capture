@@ -13,7 +13,9 @@ from afolu.partitions import wanted_zones_partitions
     name="transitions",
     key_prefix=["small", "plot"],
     ins={
-        "df_table_fixed_extra": dg.AssetIn(["small", "transition", "table_fixed_extra"])
+        "df_table_fixed_extra": dg.AssetIn(
+            ["small", "transition", "table_fixed_extra"],
+        ),
     },
     partitions_def=wanted_zones_partitions,
     io_manager_key="figure_manager",

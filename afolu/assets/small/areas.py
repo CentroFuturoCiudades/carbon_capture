@@ -15,7 +15,7 @@ ins["grasslands_img"] = dg.AssetIn(["small", "class_mask", "grasslands_merged"])
 
 
 cross_partition_def = dg.MultiPartitionsDefinition(
-    {"year": year_partitions, "zone": wanted_zones_partitions}
+    {"year": year_partitions, "zone": wanted_zones_partitions},
 )
 
 
@@ -127,18 +127,3 @@ def area_table_merged(table_map: dict[str, pd.DataFrame]) -> pd.DataFrame:
         .pivot_table(index="label", columns="year", values="area")
         .divide(10_000)
     )
-
-
-@dg.asset(
-    name="table_frac",
-    key_prefix=["small", "area"],
-    ins={
-        "table": dg.AssetIn(["small", "area", "table_merged"]),
-    },
-    partitions_def=wanted_zones_partitions,
-    io_manager_key="dataframe_manager",
-    group_name="small_area",
-)
-def area_table_frac(table: pd.DataFrame) -> pd.DataFrame:
-    table = table.set_index("label")
-    return table.div(table.sum(axis=0), axis=1)

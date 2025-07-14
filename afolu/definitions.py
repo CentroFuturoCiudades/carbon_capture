@@ -114,6 +114,8 @@ defs = dg.Definitions.merge(
                         assets.load,
                         assets.emissions,
                         assets.zones,
+                        assets.stats,
+                        assets.rasters,
                     ],
                 ),
             )

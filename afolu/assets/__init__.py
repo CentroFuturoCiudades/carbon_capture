@@ -1,4 +1,15 @@
-from afolu.assets import bbox, class_masks, emissions, large, load, plot, small, zones
+from afolu.assets import (
+    bbox,
+    class_masks,
+    emissions,
+    large,
+    load,
+    plot,
+    rasters,
+    small,
+    stats,
+    zones,
+)
 
 __all__ = [
     "bbox",
@@ -7,6 +18,8 @@ __all__ = [
     "large",
     "load",
     "plot",
+    "rasters",
     "small",
+    "stats",
     "zones",
 ]

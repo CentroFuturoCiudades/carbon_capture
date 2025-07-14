@@ -17,6 +17,10 @@ label_pair_partitions = StaticPartitionsDefinition(
 
 label_partitions = StaticPartitionsDefinition(LABEL_LIST)
 
+five_year_partitions = StaticPartitionsDefinition(
+    [f"{year}" for year in range(2000, 2021, 5)],
+)
+
 wanted_zones_partitions = StaticPartitionsDefinition(
     [
         "BOL+Cobija",
@@ -59,5 +63,5 @@ wanted_zones_partitions = StaticPartitionsDefinition(
         "SUR+Nieuw Nickerie",
         "VEN+Atures",
         "MEX+Monterrey",
-    ]
+    ],
 )

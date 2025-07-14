@@ -5,12 +5,12 @@ import geopandas as gpd
 import rasterio as rio
 import rasterio.features as rio_features
 import shapely
+from pyproj.aoi import AreaOfInterest
+from pyproj.database import query_utm_crs_info
 
 import dagster as dg
 from afolu.partitions import wanted_zones_partitions
 from afolu.resources import PathResource, ZoneBufferResource
-from pyproj.aoi import AreaOfInterest
-from pyproj.database import query_utm_crs_info
 
 
 # Amazonas
@@ -123,7 +123,7 @@ def bbox_small(
     crs = utm_crs_list[0].code
     geom = shapely.concave_hull(zone["geometry"].union_all())
 
-    if context.partition_key in zone_buffer_resource.buffers.keys():
+    if context.partition_key in zone_buffer_resource.buffers:
         buffer = zone_buffer_resource.buffers[context.partition_key]
     else:
         buffer = 10_000
@@ -138,7 +138,8 @@ def bbox_small(
 
 
 def bbox_ee_factory(
-    top_prefix: str, partitions_def: dg.PartitionsDefinition | None = None
+    top_prefix: str,
+    partitions_def: dg.PartitionsDefinition | None = None,
 ) -> dg.AssetsDefinition:
     @dg.asset(
         name="ee",
@@ -166,6 +167,8 @@ def bbox_ee_factory(
 dassets = [
     bbox_ee_factory(prefix, partitions_def)
     for prefix, partitions_def in zip(
-        ["amazon", "mexico", "small"], [None, None, wanted_zones_partitions]
+        ["amazon", "mexico", "small"],
+        [None, None, wanted_zones_partitions],
+        strict=False,
     )
 ]

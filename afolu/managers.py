@@ -215,28 +215,43 @@ class RasterManager(BaseManager):
 
         fpath.parent.mkdir(exist_ok=True, parents=True)
 
-        with rio.open(
-            fpath,
-            "w",
-            driver="GTiff",
-            height=data.shape[0],
-            width=data.shape[1],
-            count=1,
-            dtype=data.dtype,
-            crs=crs,
-            transform=transform,
-            compress="lzw",
-        ) as ds:
-            ds.write(data, 1)
+        if data.ndim == 2:
+            with rio.open(
+                fpath,
+                "w",
+                driver="GTiff",
+                height=data.shape[0],
+                width=data.shape[1],
+                count=1,
+                dtype=data.dtype,
+                crs=crs,
+                transform=transform,
+                compress="lzw",
+            ) as ds:
+                ds.write(data, 1)
+        else:
+            with rio.open(
+                fpath,
+                "w",
+                driver="GTiff",
+                count=data.shape[0],
+                height=data.shape[1],
+                width=data.shape[2],
+                dtype=data.dtype,
+                crs=crs,
+                transform=transform,
+                compress="lzw",
+            ) as ds:
+                for i, subarr in enumerate(data):
+                    ds.write(subarr, i + 1)
 
     def load_input(self, context: dg.InputContext) -> tuple[np.ndarray, CRS, Affine]:
         fpath = self._get_path(context)
         with rio.open(fpath) as ds:
-            data = ds.read(1)
+            data = ds.read().squeeze()
             crs = ds.crs
             transform = ds.transform
 
-        data = data.squeeze()
         return data, crs, transform
 
 

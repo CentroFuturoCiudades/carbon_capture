@@ -12,17 +12,16 @@ from afolu.assets.common import (
 from afolu.assets.constants import LABEL_LIST
 from afolu.partitions import (
     extra_year_pair_partitions,
-    year_pair_partitions,
     wanted_zones_partitions,
+    year_pair_partitions,
 )
 
-
 cross_partition_def = dg.MultiPartitionsDefinition(
-    {"year": year_pair_partitions, "zone": wanted_zones_partitions}
+    {"year": year_pair_partitions, "zone": wanted_zones_partitions},
 )
 
 extra_cross_partitions_def = dg.MultiPartitionsDefinition(
-    {"year": extra_year_pair_partitions, "zone": wanted_zones_partitions}
+    {"year": extra_year_pair_partitions, "zone": wanted_zones_partitions},
 )
 
 
@@ -54,7 +53,8 @@ ins["bbox"] = dg.AssetIn(["small", "bbox", "ee"])
 
 
 def transition_raster_factory(
-    partitions_def: dg.PartitionsDefinition, name_suffix: str = ""
+    partitions_def: dg.PartitionsDefinition,
+    name_suffix: str = "",
 ) -> dg.AssetsDefinition:
     @dg.asset(
         ins=ins,
@@ -123,7 +123,8 @@ def transition_raster_factory(
 
 
 def transition_table_factory(
-    partitions_def: dg.PartitionsDefinition, name_suffix: str = ""
+    partitions_def: dg.PartitionsDefinition,
+    name_suffix: str = "",
 ) -> dg.AssetsDefinition:
     @dg.asset(
         name=f"table{name_suffix}",
@@ -143,7 +144,7 @@ def transition_table_factory(
         transition_label_map: dict[str, list[str]],
     ) -> pd.DataFrame:
         transition_img: ee.image.Image = raster.addBands(
-            ee.image.Image.pixelArea()
+            ee.image.Image.pixelArea(),
         ).select(
             ["area", "class"],
         )
@@ -206,15 +207,21 @@ dassets = [
     transition_table_frac_factory("small", partitions_def=cross_partition_def),
     transition_cube_factory("small", partitions_def=wanted_zones_partitions),
     transition_raster_factory(
-        partitions_def=extra_cross_partitions_def, name_suffix="_extra"
+        partitions_def=extra_cross_partitions_def,
+        name_suffix="_extra",
     ),
     transition_table_factory(
-        partitions_def=extra_cross_partitions_def, name_suffix="_extra"
+        partitions_def=extra_cross_partitions_def,
+        name_suffix="_extra",
     ),
     transition_table_fixed_factory(
-        "small", partitions_def=extra_cross_partitions_def, name_suffix="_extra"
+        "small",
+        partitions_def=extra_cross_partitions_def,
+        name_suffix="_extra",
     ),
     transition_table_frac_factory(
-        "small", partitions_def=extra_cross_partitions_def, name_suffix="_extra"
+        "small",
+        partitions_def=extra_cross_partitions_def,
+        name_suffix="_extra",
     ),
 ]

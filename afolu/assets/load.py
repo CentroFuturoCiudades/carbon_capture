@@ -1,12 +1,12 @@
 import ee
 
 import dagster as dg
-
 from afolu.partitions import wanted_zones_partitions
 
 
 def glc30_factory(
-    top_prefix: str, partitions_def: dg.PartitionsDefinition | None = None
+    top_prefix: str,
+    partitions_def: dg.PartitionsDefinition | None = None,
 ) -> dg.AssetsDefinition:
     @dg.asset(
         name="glc30",
@@ -31,7 +31,8 @@ def glc30_factory(
 
 
 def forests_mask_factory(
-    top_prefix: str, partitions_def: dg.PartitionsDefinition | None = None
+    top_prefix: str,
+    partitions_def: dg.PartitionsDefinition | None = None,
 ) -> dg.AssetsDefinition:
     @dg.asset(
         name="forests_mask",
@@ -58,7 +59,8 @@ def forests_mask_factory(
 
 
 def pastures_random_mask_factory(
-    top_prefix: str, partitions_def: dg.PartitionsDefinition | None = None
+    top_prefix: str,
+    partitions_def: dg.PartitionsDefinition | None = None,
 ) -> dg.AssetsDefinition:
     @dg.asset(
         name="pastures_random_mask",
@@ -93,6 +95,8 @@ dassets = [
     factory(top_prefix, partitions_def)
     for factory in [glc30_factory, forests_mask_factory, pastures_random_mask_factory]
     for top_prefix, partitions_def in zip(
-        ["amazon", "mexico", "small"], [None, None, wanted_zones_partitions]
+        ["amazon", "mexico", "small"],
+        [None, None, wanted_zones_partitions],
+        strict=False,
     )
 ]

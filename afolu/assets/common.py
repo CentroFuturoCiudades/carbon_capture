@@ -98,8 +98,8 @@ def transition_table_frac_factory(
         key_prefix=[top_prefix, "transition"],
         ins={
             "cross_fixed": dg.AssetIn(
-                [top_prefix, "transition", f"table_fixed{name_suffix}"]
-            )
+                [top_prefix, "transition", f"table_fixed{name_suffix}"],
+            ),
         },
         partitions_def=partitions_def,
         io_manager_key="dataframe_manager",
@@ -127,8 +127,8 @@ def transition_cube_factory(
         key_prefix=[top_prefix, "transition"],
         ins={
             "table_frac_map": dg.AssetIn(
-                [top_prefix, "transition", f"table_frac{name_suffix}"]
-            )
+                [top_prefix, "transition", f"table_frac{name_suffix}"],
+            ),
         },
         partitions_def=partitions_def,
         io_manager_key="dataframe_manager",

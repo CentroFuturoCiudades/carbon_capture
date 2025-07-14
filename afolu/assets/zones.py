@@ -1,3 +1,4 @@
+from collections.abc import Sequence
 from pathlib import Path
 
 import geopandas as gpd
@@ -6,8 +7,6 @@ import pandas as pd
 import dagster as dg
 from afolu.partitions import wanted_zones_partitions
 from afolu.resources import PathResource
-from typing import Sequence
-
 
 ISO_TO_COUNTRY = {
     "BOL": "Bolivia",
@@ -52,10 +51,12 @@ MEXICO_CITY_TO_CODE_MAP = {"Monterrey": "19.1.01"}
 
 
 def get_data_from_fua(
-    country_iso: str, city_name: str, df_fua: gpd.GeoDataFrame
+    country_iso: str,
+    city_name: str,
+    df_fua: gpd.GeoDataFrame,
 ) -> gpd.GeoDataFrame | None:
     fua_list = df_fua.query(
-        f"(Cntry_ISO == '{country_iso}') & (eFUA_name == '{city_name}')"
+        f"(Cntry_ISO == '{country_iso}') & (eFUA_name == '{city_name}')",
     )
     if len(fua_list) > 1:
         err = f"Multiple FUA found for {country_iso} {city_name}"
@@ -72,12 +73,14 @@ def get_data_from_fua(
 
 
 def get_data_from_uc(
-    country_iso: str, city_name: str, df_uc: gpd.GeoDataFrame
+    country_iso: str,
+    city_name: str,
+    df_uc: gpd.GeoDataFrame,
 ) -> gpd.GeoDataFrame | None:
     country_name = ISO_TO_COUNTRY[country_iso]
 
     uc_list = df_uc.query(
-        f"(GC_CNT_GAD_2025 == '{country_name}') & (GC_UCN_MAI_2025 == '{city_name}')"
+        f"(GC_CNT_GAD_2025 == '{country_name}') & (GC_UCN_MAI_2025 == '{city_name}')",
     )
     if len(uc_list) > 1:
         err = f"Multiple UC found for {country_iso} {city_name}"
@@ -94,9 +97,10 @@ def get_data_from_uc(
 
 
 def get_data_from_polygons(
-    polygon_ids: Sequence[int], df_poly: gpd.GeoDataFrame
+    polygon_ids: Sequence[int],  # noqa: ARG001
+    df_poly: gpd.GeoDataFrame,
 ) -> gpd.GeoDataFrame | None:
-    poly_list = df_poly.query(f"polygon_id.isin(@polygon_ids)")
+    poly_list = df_poly.query("polygon_id.isin(@polygon_ids)")
 
     names_filtered = poly_list.query("~name.str.startswith('Cerca')")["name"]
 
@@ -106,7 +110,7 @@ def get_data_from_polygons(
                 "pop": poly_list["pop_2020"].sum(),
                 "geometry": poly_list["geometry"].union_all(),
                 "name": names_filtered.str.cat(sep="+"),
-            }
+            },
         )
         .to_frame()
         .T,
@@ -129,7 +133,7 @@ def get_data_from_mexico(path_resource: PathResource, city: str) -> gpd.GeoDataF
         / "zone_agebs"
         / "shaped"
         / "2020"
-        / f"{code}.gpkg"
+        / f"{code}.gpkg",
     ).to_crs("EPSG:4326")[["geometry"]]
 
 
@@ -142,11 +146,11 @@ def get_data_from_mexico(path_resource: PathResource, city: str) -> gpd.GeoDataF
     tags={"partitions": "zone"},
 )
 def zones(
-    context: dg.AssetExecutionContext, path_resource: PathResource
+    context: dg.AssetExecutionContext,
+    path_resource: PathResource,
 ) -> gpd.GeoDataFrame:
     amazonas_path = Path(path_resource.amazonas_path)
     ghsl_path = Path(path_resource.ghsl_path)
-    natural_oceans_path = Path(path_resource.natural_oceans_path)
 
     country_iso, city = context.partition_key.split("+")
 
@@ -154,14 +158,14 @@ def zones(
         return get_data_from_mexico(path_resource, city)
 
     df_fua = gpd.read_file(
-        ghsl_path / "GHS_FUA_UCDB2015_GLOBE_R2019A_54009_1K_V1_0.gpkg"
+        ghsl_path / "GHS_FUA_UCDB2015_GLOBE_R2019A_54009_1K_V1_0.gpkg",
     )
     df_uc = gpd.read_file(
         ghsl_path / "GHS_UCDB_GLOBE_R2024A.gpkg",
         layer="GHS_UCDB_THEME_GENERAL_CHARACTERISTICS_GLOBE_R2024A",
     )
     df_poly = gpd.read_file(
-        amazonas_path / "final" / "final" / "polygons" / "split.gpkg"
+        amazonas_path / "final" / "final" / "polygons" / "split.gpkg",
     )
 
     zone = context.partition_key

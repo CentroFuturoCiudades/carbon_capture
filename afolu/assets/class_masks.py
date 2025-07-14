@@ -48,7 +48,8 @@ def class_mask_factory(
 
 
 def forests_primary_factory(
-    top_prefix: str, partitions_def: dg.PartitionsDefinition | None = None
+    top_prefix: str,
+    partitions_def: dg.PartitionsDefinition | None = None,
 ) -> dg.AssetsDefinition:
     @dg.asset(
         name="forests_primary",
@@ -72,7 +73,8 @@ def forests_primary_factory(
 
 
 def forests_secondary_factory(
-    top_prefix: str, partitions_def: dg.PartitionsDefinition | None = None
+    top_prefix: str,
+    partitions_def: dg.PartitionsDefinition | None = None,
 ) -> dg.AssetsDefinition:
     @dg.asset(
         name="forests_secondary",
@@ -98,7 +100,8 @@ def forests_secondary_factory(
 
 
 def pastures_factory(
-    top_prefix: str, partitions_def: dg.PartitionsDefinition | None = None
+    top_prefix: str,
+    partitions_def: dg.PartitionsDefinition | None = None,
 ) -> dg.AssetsDefinition:
     @dg.asset(
         name="pastures",
@@ -126,7 +129,8 @@ def pastures_factory(
 
 
 def grasslands_merged_factory(
-    top_prefix: str, partitions_def: dg.PartitionsDefinition | None = None
+    top_prefix: str,
+    partitions_def: dg.PartitionsDefinition | None = None,
 ) -> dg.AssetsDefinition:
     @dg.asset(
         name="grasslands_merged",
@@ -172,7 +176,9 @@ assets = [
         "other",
     )
     for top_prefix, partitions_def in zip(
-        ["amazon", "mexico", "small"], [None, None, wanted_zones_partitions]
+        ["amazon", "mexico", "small"],
+        [None, None, wanted_zones_partitions],
+        strict=False,
     )
 ] + [
     factory(top_prefix, partitions_def)
@@ -183,6 +189,8 @@ assets = [
         grasslands_merged_factory,
     )
     for top_prefix, partitions_def in zip(
-        ["amazon", "mexico", "small"], [None, None, wanted_zones_partitions]
+        ["amazon", "mexico", "small"],
+        [None, None, wanted_zones_partitions],
+        strict=False,
     )
 ]
