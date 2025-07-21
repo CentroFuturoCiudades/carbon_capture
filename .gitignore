@@ -182,3 +182,4 @@ figures/
 .DS_Store
 fig/
 *.zip
+*.gpkg

@@ -122,8 +122,14 @@ def area_table_merged(table_map: dict[str, pd.DataFrame]) -> pd.DataFrame:
         temp = df.assign(year=int(year) - 2000)
         out.append(temp)
 
-    return (
+    out = (
         pd.concat(out)
         .pivot_table(index="label", columns="year", values="area")
         .divide(10_000)
     )
+
+    for label in LABEL_LIST:
+        if label not in out.index:
+            out.loc[label] = 0.1
+
+    return out.sort_index().sort_index(axis=1)

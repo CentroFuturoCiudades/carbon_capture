@@ -188,14 +188,7 @@ def transition_table_factory(
             if label not in out.columns:
                 out[label] = 0
 
-        out = out.sort_index()
-        out = out[sorted(out.columns)]
-
-        if not isinstance(out, pd.DataFrame):
-            err = f"Expected pd.DataFrame, got {type(out)}"
-            raise TypeError(err)
-
-        return out
+        return out.sort_index(axis=0).sort_index(axis=1)
 
     return _asset
 

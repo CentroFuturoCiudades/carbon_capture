@@ -121,7 +121,7 @@ def bbox_small(
         ),
     )
     crs = utm_crs_list[0].code
-    geom = shapely.concave_hull(zone["geometry"].union_all())
+    geom = zone["geometry"].union_all()
 
     if context.partition_key in zone_buffer_resource.buffers:
         buffer = zone_buffer_resource.buffers[context.partition_key]

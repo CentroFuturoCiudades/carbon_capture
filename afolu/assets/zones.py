@@ -149,8 +149,16 @@ def zones(
     context: dg.AssetExecutionContext,
     path_resource: PathResource,
 ) -> gpd.GeoDataFrame:
+    data_path = Path(path_resource.data_path)
     amazonas_path = Path(path_resource.amazonas_path)
     ghsl_path = Path(path_resource.ghsl_path)
+
+    manual_bounds_path = data_path / "initial" / "boundaries"
+    name_list = [path.stem for path in manual_bounds_path.iterdir()]
+    if context.partition_key in name_list:
+        return gpd.read_file(
+            manual_bounds_path / f"{context.partition_key}.gpkg"
+        ).to_crs("EPSG:4326")
 
     country_iso, city = context.partition_key.split("+")
 

@@ -41,24 +41,12 @@ def population(path_resource: PathResource, df_bbox: gpd.GeoDataFrame) -> pd.Dat
     name="built_area",
     key_prefix=["small", "stats"],
     partitions_def=wanted_zones_partitions,
-    ins={"df_bbox": dg.AssetIn(["small", "bbox", "shapely"])},
+    ins={"area": dg.AssetIn(["small", "area", "table_merged"])},
     io_manager_key="dataframe_manager",
     group_name="small_stats",
 )
-def built_area(path_resource: PathResource, df_bbox: gpd.GeoDataFrame) -> pd.DataFrame:
-    bbox = df_bbox.to_crs("ESRI:54009")["geometry"].item()
-
-    built_dir_path = Path(path_resource.ghsl_path) / "BUILT_100"
-
-    areas = []
-    for year in range(2000, 2021, 5):
-        with rio.open(built_dir_path / f"{year}.tif") as ds:
-            masked, _ = rio_mask.mask(ds, [bbox], crop=True, nodata=0)
-            areas.append(
-                {
-                    "time_period": year,
-                    "built_area": masked.sum(),
-                },
-            )
-
-    return pd.DataFrame(areas).set_index("time_period")
+def built_area(area: pd.DataFrame) -> pd.DataFrame:
+    out = area.set_index("label").T
+    out.index = out.index.astype(int) + 2000
+    out.index.name = "time_period"
+    return out.filter(["settlements"])

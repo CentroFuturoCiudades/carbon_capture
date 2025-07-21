@@ -60,7 +60,9 @@ for key, spec in config.items():
 
 class_map_resource = AFOLUClassMapResource(**spec_map)
 
-zone_buffer_resource = ZoneBufferResource(buffers={"COL+San José del Guaviare": 1_000})
+zone_buffer_resource = ZoneBufferResource(
+    buffers={"COL+San José del Guaviare": 1_000, "GUY+Georgetown": 2_000}
+)
 
 
 # Managers
