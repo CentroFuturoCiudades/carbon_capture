@@ -65,3 +65,6 @@ wanted_zones_partitions = StaticPartitionsDefinition(
         "MEX+Monterrey",
     ],
 )
+
+
+scenario_partitions = StaticPartitionsDefinition(["fast", "normal", "slow"])

@@ -183,3 +183,4 @@ figures/
 fig/
 *.zip
 *.gpkg
+*.npy

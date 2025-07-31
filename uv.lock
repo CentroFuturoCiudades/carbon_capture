@@ -21,6 +21,7 @@ name = "afolu"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [
+    { name = "contextily" },
     { name = "dagster" },
     { name = "dagster-webserver" },
     { name = "earthengine-api" },
@@ -49,6 +50,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
+    { name = "contextily", specifier = ">=1.6.2" },
     { name = "dagster", specifier = ">=1.10.12" },
     { name = "dagster-webserver", specifier = ">=1.10.12" },
     { name = "earthengine-api", specifier = ">=1.5.13" },
@@ -487,6 +489,25 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/e9/a8/fb783cb0abe2b5fded9f55e5703015cdf1c9c85b3669087c538dd15a6a86/comm-0.2.2.tar.gz", hash = "sha256:3fd7a84065306e07bea1773df6eb8282de51ba82f77c72f9c85716ab11fe980e", size = 6210, upload_time = "2024-03-12T16:53:41.133Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/e6/75/49e5bfe642f71f272236b5b2d2691cf915a7283cc0ceda56357b61daa538/comm-0.2.2-py3-none-any.whl", hash = "sha256:e6fb86cb70ff661ee8c9c14e7d36d6de3b4066f1441be4063df9c5009f0a64d3", size = 7180, upload_time = "2024-03-12T16:53:39.226Z" },
+]
+
+[[package]]
+name = "contextily"
+version = "1.6.2"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "geopy" },
+    { name = "joblib" },
+    { name = "matplotlib" },
+    { name = "mercantile" },
+    { name = "pillow" },
+    { name = "rasterio" },
+    { name = "requests" },
+    { name = "xyzservices" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/85/5c/67e809b32a8e4017a2dbfea90d4401167b087fc0cab88e82c7abc4da91d6/contextily-1.6.2.tar.gz", hash = "sha256:3c747925269be248a9b1a761859e05d1681286e04d5d0796bdaf1de3409474bb", size = 22461478, upload_time = "2024-09-03T09:14:46.47Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/fb/46/07a029b73f9a5c7bbf9b538e6441c42014a448f335a1cc780616f2594bad/contextily-1.6.2-py3-none-any.whl", hash = "sha256:b06ead7258b34e73db2e318e33554f54a22d207b3c272b74d8b64801773b3fc3", size = 17149, upload_time = "2024-09-03T09:14:43.582Z" },
 ]
 
 [[package]]
@@ -1971,6 +1992,18 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/d6/54/cfe61301667036ec958cb99bd3efefba235e65cdeb9c84d24a8293ba1d90/mdurl-0.1.2.tar.gz", hash = "sha256:bb413d29f5eea38f31dd4754dd7377d4465116fb207585f97bf925588687c1ba", size = 8729, upload_time = "2022-08-14T12:40:10.846Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/b3/38/89ba8ad64ae25be8de66a6d463314cf1eb366222074cfda9ee839c56a4b4/mdurl-0.1.2-py3-none-any.whl", hash = "sha256:84008a41e51615a49fc9966191ff91509e3c40b939176e643fd50a5c2196b8f8", size = 9979, upload_time = "2022-08-14T12:40:09.779Z" },
+]
+
+[[package]]
+name = "mercantile"
+version = "1.2.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "click" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/d2/c6/87409bcb26fb68c393fa8cf58ba09363aa7298cfb438a0109b5cb14bc98b/mercantile-1.2.1.tar.gz", hash = "sha256:fa3c6db15daffd58454ac198b31887519a19caccee3f9d63d17ae7ff61b3b56b", size = 26352, upload_time = "2021-04-21T14:42:41.096Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/b2/d6/de0cc74f8d36976aeca0dd2e9cbf711882ff8e177495115fd82459afdc4d/mercantile-1.2.1-py3-none-any.whl", hash = "sha256:30f457a73ee88261aab787b7069d85961a5703bb09dc57a170190bc042cd023f", size = 14779, upload_time = "2021-04-21T14:42:39.841Z" },
 ]
 
 [[package]]

@@ -5,6 +5,7 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
+    "contextily>=1.6.2",
     "dagster>=1.10.12",
     "dagster-webserver>=1.10.12",
     "earthengine-api>=1.5.13",

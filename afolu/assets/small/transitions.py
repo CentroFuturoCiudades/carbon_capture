@@ -46,9 +46,10 @@ def transition_label_map() -> dict[int, list[str]]:
 
 
 ins = {
-    f"{label}_img": dg.AssetIn(["small", "class_mask", label]) for label in LABEL_LIST
+    f"{label}_img": dg.AssetIn(["small", "class_mask", f"{label}_final"])
+    for label in LABEL_LIST
 }
-ins["grasslands_img"] = dg.AssetIn(["small", "class_mask", "grasslands_merged"])
+ins["grasslands_img"] = dg.AssetIn(["small", "class_mask", "grasslands_merged_final"])
 ins["bbox"] = dg.AssetIn(["small", "bbox", "ee"])
 
 

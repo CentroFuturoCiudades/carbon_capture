@@ -161,36 +161,154 @@ def grasslands_merged_factory(
     return _asset
 
 
-assets = [
-    class_mask_factory(top_prefix, class_name, partitions_def)
-    for class_name in (
-        "croplands",
-        "forests_mangroves",
-        "forests",
-        "grasslands",
-        "grasslands_to_pastures",
-        "wetlands",
-        "settlements",
-        "flooded",
-        "shrublands",
-        "other",
+def foo(img: ee.image.Image, prev: ee.image.Image) -> ee.image.Image:
+    return img.bitwiseOr(prev)
+
+
+def settlements_fixed_factory(
+    top_prefix: str,
+    partitions_def: dg.PartitionsDefinition | None = None,
+) -> dg.AssetsDefinition:
+    @dg.asset(
+        name="settlements_fixed",
+        key_prefix=[top_prefix, "class_mask"],
+        ins={
+            "settlements_mask": dg.AssetIn([top_prefix, "class_mask", "settlements"]),
+        },
+        partitions_def=partitions_def,
+        io_manager_key="ee_manager",
+        group_name=f"{top_prefix}_class_mask",
     )
-    for top_prefix, partitions_def in zip(
-        ["amazon", "mexico", "small"],
-        [None, None, wanted_zones_partitions],
-        strict=False,
+    def _asset(settlements_mask: ee.image.Image) -> ee.image.Image:
+        final_idx = 25
+        bands = []
+        for end_idx in range(2, final_idx):
+            col = ee.imagecollection.ImageCollection.fromImages(
+                [settlements_mask.select(f"b{i}") for i in range(1, end_idx)],
+            )
+            res = ee.image.Image(col.iterate(foo, ee.image.Image.constant(0)))
+            bands.append(res)
+
+        return (
+            ee.imagecollection.ImageCollection.fromImages(bands)
+            .toBands()
+            .rename([f"b{i}" for i in range(1, final_idx - 1)])
+        )
+
+    return _asset
+
+
+def final_mask_factory(
+    top_prefix: str,
+    class_name: str,
+    partitions_def: dg.PartitionsDefinition | None,
+) -> dg.AssetsDefinition:
+    @dg.asset(
+        name=f"{class_name}_final",
+        key_prefix=[top_prefix, "class_mask"],
+        ins={
+            "class_mask": dg.AssetIn([top_prefix, "class_mask", class_name]),
+            "settlements_mask": dg.AssetIn(
+                [top_prefix, "class_mask", "settlements_fixed"],
+            ),
+        },
+        partitions_def=partitions_def,
+        io_manager_key="ee_manager",
+        group_name=f"{top_prefix}_class_mask",
     )
-] + [
-    factory(top_prefix, partitions_def)
-    for factory in (
-        forests_primary_factory,
-        forests_secondary_factory,
-        pastures_factory,
-        grasslands_merged_factory,
+    def _asset(
+        class_mask: ee.image.Image,
+        settlements_mask: ee.image.Image,
+    ) -> ee.image.Image:
+        return class_mask.And(settlements_mask.Not())
+
+    return _asset
+
+
+def settlements_final_mask_factory(
+    top_prefix: str,
+    partitions_def: dg.PartitionsDefinition | None,
+) -> dg.AssetsDefinition:
+    @dg.asset(
+        name="settlements_final",
+        key_prefix=[top_prefix, "class_mask"],
+        ins={
+            "settlements_mask": dg.AssetIn(
+                [top_prefix, "class_mask", "settlements_fixed"],
+            ),
+        },
+        partitions_def=partitions_def,
+        io_manager_key="ee_manager",
+        group_name=f"{top_prefix}_class_mask",
     )
-    for top_prefix, partitions_def in zip(
-        ["amazon", "mexico", "small"],
-        [None, None, wanted_zones_partitions],
-        strict=False,
-    )
-]
+    def _asset(settlements_mask: ee.image.Image) -> ee.image.Image:
+        return settlements_mask
+
+    return _asset
+
+
+assets = (
+    [
+        class_mask_factory(top_prefix, class_name, partitions_def)
+        for class_name in [
+            "croplands",
+            "forests_mangroves",
+            "forests",
+            "grasslands",
+            "grasslands_to_pastures",
+            "wetlands",
+            "settlements",
+            "flooded",
+            "shrublands",
+            "other",
+        ]
+        for top_prefix, partitions_def in zip(
+            ["amazon", "mexico", "small"],
+            [None, None, wanted_zones_partitions],
+            strict=True,
+        )
+    ]
+    + [
+        factory(top_prefix, partitions_def)
+        for factory in (
+            forests_primary_factory,
+            forests_secondary_factory,
+            pastures_factory,
+            grasslands_merged_factory,
+            settlements_fixed_factory,
+        )
+        for top_prefix, partitions_def in zip(
+            ["amazon", "mexico", "small"],
+            [None, None, wanted_zones_partitions],
+            strict=True,
+        )
+    ]
+    + [
+        final_mask_factory(top_prefix, class_name, partitions_def)
+        for class_name in [
+            "croplands",
+            "flooded",
+            "forests_mangroves",
+            "forests_primary",
+            "forests_secondary",
+            "grasslands_merged",
+            "other",
+            "pastures",
+            "shrublands",
+            "wetlands",
+        ]
+        for top_prefix, partitions_def in zip(
+            ["amazon", "mexico", "small"],
+            [None, None, wanted_zones_partitions],
+            strict=True,
+        )
+    ]
+    + [
+        settlements_final_mask_factory(top_prefix, partitions_def)
+        for top_prefix, partitions_def in zip(
+            ["amazon", "mexico", "small"],
+            [None, None, wanted_zones_partitions],
+            strict=True,
+        )
+    ]
+)
