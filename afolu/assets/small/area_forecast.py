@@ -31,7 +31,14 @@ def convert_transition_df_to_mat(df: pd.DataFrame) -> np.ndarray:
     return transition_mat
 
 
-def get_area_coefficients(df_area: pd.DataFrame) -> dict[str, np.ndarray]:
+def get_area_coefficients(
+    df_area: pd.DataFrame, *, nyears: int | None = None
+) -> dict[str, np.ndarray]:
+    df_area = df_area.sort_index()
+
+    if nyears is not None:
+        df_area = df_area.iloc[len(df_area) - nyears :]
+
     X = df_area.index.to_numpy().reshape(-1, 1)
     return {
         label: np.polyfit(X.flatten(), df_area[label].to_numpy(), 1)
@@ -56,7 +63,7 @@ def make_scenario_predictions(
     scenario: str,
     nyears: int = 20,
 ) -> np.ndarray:
-    coefficients = get_area_coefficients(df_area_frac)
+    coefficients = get_area_coefficients(df_area_frac, nyears=10)
     print(coefficients)
 
     X = df_area_frac.index.to_numpy()
