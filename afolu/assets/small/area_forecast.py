@@ -32,7 +32,9 @@ def convert_transition_df_to_mat(df: pd.DataFrame) -> np.ndarray:
 
 
 def get_area_coefficients(
-    df_area: pd.DataFrame, *, nyears: int | None = None
+    df_area: pd.DataFrame,
+    *,
+    nyears: int | None = None,
 ) -> dict[str, np.ndarray]:
     df_area = df_area.sort_index()
 
@@ -249,7 +251,8 @@ def area_forecast(
 
     if "transitions" in context.selected_output_names:
         yield dg.Output(
-            total_transition.set_index("time_period"), output_name="transitions"
+            total_transition.set_index("time_period"),
+            output_name="transitions",
         )
 
 
