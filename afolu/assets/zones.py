@@ -5,6 +5,7 @@ import geopandas as gpd
 import pandas as pd
 
 import dagster as dg
+from afolu.assets.constants import CODE_TO_MEXICO_CITY_MAP
 from afolu.partitions import wanted_zones_partitions
 from afolu.resources import PathResource
 
@@ -45,9 +46,6 @@ ZONE_TO_POLYGON_IDS_MAP = {
     "SUR+Nieuw Nickerie": [28_181],
     "GUY+Lethem": [10_055, 10_054],
 }
-
-
-MEXICO_CITY_TO_CODE_MAP = {"Monterrey": "19.1.01"}
 
 
 def get_data_from_fua(
@@ -122,11 +120,13 @@ def get_data_from_polygons(
 def get_data_from_mexico(path_resource: PathResource, city: str) -> gpd.GeoDataFrame:
     population_grids_path = Path(path_resource.population_grids_path)
 
-    if city not in MEXICO_CITY_TO_CODE_MAP:
+    city_to_code_map = {value: key for key, value in CODE_TO_MEXICO_CITY_MAP.items()}
+
+    if city not in city_to_code_map:
         err = f"City {city} not found in Mexico city code map"
         raise ValueError(err)
 
-    code = MEXICO_CITY_TO_CODE_MAP[city]
+    code = city_to_code_map[city]
     return gpd.read_file(
         population_grids_path
         / "final"

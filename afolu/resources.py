@@ -1,6 +1,10 @@
 import dagster as dg
 
 
+class ConfigResource(dg.ConfigurableResource):
+    fix_settlements: bool
+
+
 class PathResource(dg.ConfigurableResource):
     ghsl_path: str
     data_path: str

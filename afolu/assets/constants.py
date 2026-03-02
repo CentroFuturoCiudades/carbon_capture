@@ -12,9 +12,7 @@ LABEL_LIST = (
     "wetlands",
 )
 
-
 REDUCE_SCALE = 100
-
 
 COLUMN_NAME_MAP = {
     "croplands": "Cultivos",
@@ -27,6 +25,7 @@ COLUMN_NAME_MAP = {
     "settlements": "Asentamientos",
     "shrublands": "Matorrales",
     "wetlands": "Humedales",
+    "forests_mangroves": "Manglares",
 }
 
 COLOR_MAP_BASE = {
@@ -40,9 +39,82 @@ COLOR_MAP_BASE = {
     "settlements": "#808080",
     "shrublands": "#FFA07A",
     "wetlands": "#40E0D0",
+    "forests_mangroves": "#2E8B57",
 }
 
 COLUMN_COLOR_MAP = {
     COLUMN_NAME_MAP[key]: COLOR_MAP_BASE[key] for key in COLUMN_NAME_MAP
 }
 COLUMN_COLOR_MAP["Total"] = "#000000"
+
+CODE_TO_MEXICO_CITY_MAP = {
+    "01.1.01": "Aguascalientes",
+    "02.1.01": "Tijuana",
+    "02.2.02": "Ensenada",
+    "02.2.03": "Mexicali",
+    "03.2.01": "La Paz",
+    "03.2.02": "Los Cabos",
+    "04.2.01": "Campeche",
+    "05.1.01": "La Laguna",
+    "05.1.02": "Monclova-Frontera",
+    "05.1.03": "Piedras Negras",
+    "05.1.04": "Saltillo",
+    "06.1.01": "Colima-Villa de Álvarez",
+    "07.1.01": "Tapachula",
+    "07.1.02": "Tuxtla Gutiérrez",
+    "08.1.01": "Chihuahua",
+    "08.1.02": "Delicias",
+    "08.2.03": "Ciudad Juárez",
+    "09.1.01": "Ciudad de México",
+    "10.2.01": "Durango",
+    "11.1.01": "Celaya",
+    "11.1.02": "León",
+    "11.2.03": "Guanajuato",
+    "11.2.04": "Irapuato",
+    "12.1.01": "Chilpancingo",
+    "12.2.02": "Acapulco",
+    "13.1.01": "Pachuca",
+    "13.1.02": "Tulancingo",
+    "14.1.01": "Guadalajara",
+    "14.1.02": "Puerto Vallarta",
+    "15.1.01": "Toluca",
+    "16.1.01": "La Piedad-Pénjamo",
+    "16.1.02": "Morelia",
+    "16.1.03": "Zamora",
+    "16.2.04": "Uruapan",
+    "17.1.01": "Cuautla",
+    "17.1.02": "Cuernavaca",
+    "18.1.01": "Tepic",
+    "19.1.01": "Monterrey",
+    "20.1.01": "Oaxaca",
+    "21.1.01": "Puebla-Tlaxcala",
+    "21.1.02": "San Martín Texmelucan",
+    "21.1.03": "Tehuacán",
+    "22.1.01": "Querétaro",
+    "23.1.01": "Cancún",
+    "23.2.02": "Chetumal",
+    "24.1.01": "San Luis Potosí",
+    "25.2.01": "Culiacán",
+    "25.2.02": "Los Mochis",
+    "25.2.03": "Mazatlán",
+    "26.1.01": "Guaymas",
+    "26.2.02": "Ciudad Obregón",
+    "26.2.03": "Hermosillo",
+    "26.2.04": "Nogales",
+    "27.1.01": "Villahermosa",
+    "28.1.01": "Reynosa",
+    "28.1.02": "Tampico",
+    "28.2.03": "Ciudad Victoria",
+    "28.2.04": "Matamoros",
+    "28.2.05": "Nuevo Laredo",
+    "29.1.01": "Tlaxcala-Apizaco",
+    "30.1.01": "Coatzacoalcos",
+    "30.1.02": "Córdoba",
+    "30.1.03": "Minatitlán",
+    "30.1.04": "Orizaba",
+    "30.1.05": "Poza Rica",
+    "30.1.06": "Veracruz",
+    "30.1.07": "Xalapa",
+    "31.1.01": "Mérida",
+    "32.1.01": "Zacatecas-Guadalupe",
+}

@@ -1,6 +1,6 @@
 from itertools import product
 
-from afolu.assets.constants import LABEL_LIST
+from afolu.assets.constants import CODE_TO_MEXICO_CITY_MAP, LABEL_LIST
 from dagster import StaticPartitionsDefinition
 
 year_partitions = StaticPartitionsDefinition([f"{year}" for year in range(2000, 2023)])
@@ -62,7 +62,7 @@ wanted_zones_partitions = StaticPartitionsDefinition(
         "PER+Coronel Portillo",
         "SUR+Nieuw Nickerie",
         "VEN+Atures",
-        "MEX+Monterrey",
+        *[f"MEX+{x}" for x in sorted(CODE_TO_MEXICO_CITY_MAP.values())],
     ],
 )
 

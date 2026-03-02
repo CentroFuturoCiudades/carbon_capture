@@ -2,7 +2,7 @@ import ee
 
 import dagster as dg
 from afolu.partitions import wanted_zones_partitions
-from afolu.resources import AFOLUClassMapResource, LabelResource
+from afolu.resources import AFOLUClassMapResource, ConfigResource, LabelResource
 
 
 def class_mask_factory(
@@ -217,10 +217,13 @@ def final_mask_factory(
         group_name=f"{top_prefix}_class_mask",
     )
     def _asset(
+        config_resource: ConfigResource,
         class_mask: ee.image.Image,
         settlements_mask: ee.image.Image,
     ) -> ee.image.Image:
-        return class_mask.And(settlements_mask.Not())
+        if config_resource.fix_settlements:
+            return class_mask.And(settlements_mask.Not())
+        return class_mask
 
     return _asset
 

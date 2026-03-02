@@ -1,4 +1,3 @@
-import os
 
 import ee
 import toml
@@ -23,6 +22,7 @@ from afolu.partitions import (
 )
 from afolu.resources import (
     AFOLUClassMapResource,
+    ConfigResource,
     LabelResource,
     PathResource,
     SelectedAreaResource,
@@ -33,6 +33,8 @@ ee.Initialize(project="ee-ursa-test")
 
 
 # Resources
+config_resource = ConfigResource(fix_settlements=False)
+
 selected_area_resource = SelectedAreaResource(selected_area="mexico")
 
 path_resource = PathResource(
@@ -43,7 +45,6 @@ path_resource = PathResource(
     natural_oceans_path=dg.EnvVar("NATURAL_OCEANS_PATH"),
 )
 
-print(os.getenv("DATA_PATH"))
 
 with open("./id_map.toml", encoding="utf8") as f:
     config = toml.load(f)
@@ -116,8 +117,8 @@ defs = dg.Definitions.merge(
                         assets.load,
                         assets.emissions,
                         assets.zones,
-                        assets.stats,
-                        assets.rasters,
+                        # assets.stats,
+                        # assets.rasters,
                     ],
                 ),
             )
@@ -139,6 +140,7 @@ defs = dg.Definitions.merge(
             selected_area_resource=selected_area_resource,
             zone_buffer_resource=zone_buffer_resource,
             figure_manager=figure_manager,
+            config_resource=config_resource,
             **all_resources_map,
         ),
     ),

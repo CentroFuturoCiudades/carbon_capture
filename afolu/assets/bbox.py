@@ -5,8 +5,6 @@ import geopandas as gpd
 import rasterio as rio
 import rasterio.features as rio_features
 import shapely
-from pyproj.aoi import AreaOfInterest
-from pyproj.database import query_utm_crs_info
 
 import dagster as dg
 from afolu.partitions import wanted_zones_partitions
@@ -87,6 +85,22 @@ def bbox_mexico(path_resource: PathResource) -> gpd.GeoDataFrame:
     return gpd.GeoDataFrame(geometry=[simplified], crs="EPSG:6372").to_crs("EPSG:4326")
 
 
+def get_largest_geometry(
+    multipoly: shapely.geometry.MultiPolygon,
+) -> shapely.geometry.Polygon:
+    max_area = 0
+    largest_geom = None
+    for geom in multipoly.geoms:
+        if geom.area > max_area:
+            max_area = geom.area
+            largest_geom = geom
+
+    if largest_geom is None:
+        err = "No valid geometry found"
+        raise ValueError(err)
+    return largest_geom
+
+
 @dg.asset(
     name="shapely",
     key_prefix=["small", "bbox"],
@@ -109,19 +123,11 @@ def bbox_small(
         .item()
     )
 
-    bounds = zone["geometry"].total_bounds
-
-    utm_crs_list = query_utm_crs_info(
-        datum_name="WGS 84",
-        area_of_interest=AreaOfInterest(
-            west_lon_degree=bounds[0],
-            south_lat_degree=bounds[1],
-            east_lon_degree=bounds[2],
-            north_lat_degree=bounds[3],
-        ),
-    )
-    crs = utm_crs_list[0].code
+    crs = zone.estimate_utm_crs()
     geom = zone["geometry"].union_all()
+
+    if isinstance(geom, shapely.MultiPolygon):
+        geom = get_largest_geometry(geom)
 
     if context.partition_key in zone_buffer_resource.buffers:
         buffer = zone_buffer_resource.buffers[context.partition_key]
