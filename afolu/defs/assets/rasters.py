@@ -14,8 +14,8 @@ from rasterio.crs import CRS
 from shapely.geometry import shape
 
 import dagster as dg
-from afolu.partitions import wanted_zones_partitions
-from afolu.resources import PathResource
+from afolu.defs.partitions import wanted_zones_partitions
+from afolu.defs.resources import PathResource
 
 
 def small_raster_factory(name: str, subdir: str) -> dg.AssetsDefinition:

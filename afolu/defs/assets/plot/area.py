@@ -5,8 +5,8 @@ import seaborn as sns
 from matplotlib.figure import Figure
 
 import dagster as dg
-from afolu.assets.constants import COLUMN_COLOR_MAP, COLUMN_NAME_MAP
-from afolu.partitions import wanted_zones_partitions
+from afolu.defs.assets.constants import COLUMN_COLOR_MAP, COLUMN_NAME_MAP
+from afolu.defs.partitions import wanted_zones_partitions
 
 
 @dg.asset(

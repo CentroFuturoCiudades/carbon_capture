@@ -10,8 +10,8 @@ import sisepuede.utilities._toolbox as sf
 from sisepuede.core.model_variable import ModelVariable
 
 import dagster as dg
-from afolu.partitions import wanted_zones_partitions
-from afolu.resources import PathResource
+from afolu.defs.partitions import wanted_zones_partitions
+from afolu.defs.resources import PathResource
 
 _MODVAR_NAME_EF_CONVERSION = "Land Use Conversion Emission Factor"
 _MODVAR_NAME_SF_FOREST = "Forest Sequestration Emission Factor"

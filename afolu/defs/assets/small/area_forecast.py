@@ -4,10 +4,10 @@ import numpy as np
 import pandas as pd
 
 import dagster as dg
-from afolu.assets.constants import LABEL_LIST
-from afolu.assets.emissions import build_dataset, generate_model_objects
-from afolu.partitions import scenario_partitions, wanted_zones_partitions
-from afolu.resources import PathResource
+from afolu.defs.assets.constants import LABEL_LIST
+from afolu.defs.assets.emissions import build_dataset, generate_model_objects
+from afolu.defs.partitions import scenario_partitions, wanted_zones_partitions
+from afolu.defs.resources import PathResource
 
 
 def convert_transition_df_to_mat(df: pd.DataFrame) -> np.ndarray:

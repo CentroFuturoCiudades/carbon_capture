@@ -1,7 +1,7 @@
 import ee
 
 import dagster as dg
-from afolu.partitions import wanted_zones_partitions
+from afolu.defs.partitions import wanted_zones_partitions
 
 
 def glc30_factory(

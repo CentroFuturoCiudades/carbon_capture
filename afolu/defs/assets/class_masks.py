@@ -1,8 +1,8 @@
 import ee
 
 import dagster as dg
-from afolu.partitions import wanted_zones_partitions
-from afolu.resources import AFOLUClassMapResource, ConfigResource, LabelResource
+from afolu.defs.partitions import wanted_zones_partitions
+from afolu.defs.resources import AFOLUClassMapResource, ConfigResource, LabelResource
 
 
 def class_mask_factory(

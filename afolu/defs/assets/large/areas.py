@@ -2,9 +2,9 @@ import ee
 import pandas as pd
 
 import dagster as dg
-from afolu.assets.common import get_raster_area, year_to_band_name
-from afolu.assets.constants import LABEL_LIST
-from afolu.partitions import label_partitions, year_partitions
+from afolu.defs.assets.common import get_raster_area, year_to_band_name
+from afolu.defs.assets.constants import LABEL_LIST
+from afolu.defs.partitions import label_partitions, year_partitions
 
 
 def area_raster_factory(top_prefix: str) -> dg.AssetsDefinition:

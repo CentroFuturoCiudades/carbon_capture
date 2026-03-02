@@ -6,8 +6,8 @@ import rasterio as rio
 import rasterio.mask as rio_mask
 
 import dagster as dg
-from afolu.partitions import wanted_zones_partitions
-from afolu.resources import PathResource
+from afolu.defs.partitions import wanted_zones_partitions
+from afolu.defs.resources import PathResource
 
 
 @dg.asset(

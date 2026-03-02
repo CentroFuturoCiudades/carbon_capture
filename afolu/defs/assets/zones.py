@@ -5,9 +5,9 @@ import geopandas as gpd
 import pandas as pd
 
 import dagster as dg
-from afolu.assets.constants import CODE_TO_MEXICO_CITY_MAP
-from afolu.partitions import wanted_zones_partitions
-from afolu.resources import PathResource
+from afolu.defs.assets.constants import CODE_TO_MEXICO_CITY_MAP
+from afolu.defs.partitions import wanted_zones_partitions
+from afolu.defs.resources import PathResource
 
 ISO_TO_COUNTRY = {
     "BOL": "Bolivia",

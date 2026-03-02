@@ -16,7 +16,7 @@ from matplotlib.figure import Figure
 from rasterio.crs import CRS
 
 import dagster as dg
-from afolu.resources import PathResource
+from afolu.defs.resources import PathResource
 
 
 def process_partition_key(partition_key: str, root_path: Path, extension: str) -> Path:

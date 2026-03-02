@@ -7,8 +7,8 @@ import rasterio.features as rio_features
 import shapely
 
 import dagster as dg
-from afolu.partitions import wanted_zones_partitions
-from afolu.resources import PathResource, ZoneBufferResource
+from afolu.defs.partitions import wanted_zones_partitions
+from afolu.defs.resources import PathResource, ZoneBufferResource
 
 
 # Amazonas

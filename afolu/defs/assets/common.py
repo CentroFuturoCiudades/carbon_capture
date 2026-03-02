@@ -5,8 +5,8 @@ import numpy as np
 import pandas as pd
 
 import dagster as dg
-from afolu.assets.constants import LABEL_LIST, REDUCE_SCALE
-from afolu.partitions import year_pair_partitions
+from afolu.defs.assets.constants import LABEL_LIST, REDUCE_SCALE
+from afolu.defs.partitions import year_pair_partitions
 
 
 def year_to_band_name(year: int | str) -> str:

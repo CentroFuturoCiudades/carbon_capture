@@ -36,22 +36,16 @@ dev = [
 [tool.uv.sources]
 sisepuede = { git = "https://github.com/RodolfoFigueroa/sisepuede/" }
 
-[tool.dagster]
-module_name = "afolu.definitions"
-
-[tool.uv]
-package = true
-
-[tool.setuptools]
-packages = ["afolu"]
-
 [tool.basedpyright]
 typeCheckingMode = "standard"
 ignore = ["**/*.ipynb", "**/dagster/*"]
 
-[tool.ruff]
-extend-exclude = ["**/dagster/*"]
-
 [tool.ruff.lint]
 select = ["ALL"]
-ignore = ["D", "PLR0913", "ANN003", "PD901", "PTH123", "PLR2004"]
+ignore = ["D"]
+
+[tool.dg]
+directory_type = "project"
+
+[tool.dg.project]
+root_module = "afolu"

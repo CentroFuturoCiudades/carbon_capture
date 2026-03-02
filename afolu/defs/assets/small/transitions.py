@@ -3,14 +3,14 @@ import numpy as np
 import pandas as pd
 
 import dagster as dg
-from afolu.assets.common import (
+from afolu.defs.assets.common import (
     transition_cube_factory,
     transition_table_fixed_factory,
     transition_table_frac_factory,
     year_to_band_name,
 )
-from afolu.assets.constants import LABEL_LIST
-from afolu.partitions import (
+from afolu.defs.assets.constants import LABEL_LIST
+from afolu.defs.partitions import (
     extra_year_pair_partitions,
     wanted_zones_partitions,
     year_pair_partitions,

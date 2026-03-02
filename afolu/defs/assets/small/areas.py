@@ -2,11 +2,11 @@ import ee
 import pandas as pd
 
 import dagster as dg
-from afolu.assets.common import (
+from afolu.defs.assets.common import (
     year_to_band_name,
 )
-from afolu.assets.constants import LABEL_LIST
-from afolu.partitions import wanted_zones_partitions, year_partitions
+from afolu.defs.assets.constants import LABEL_LIST
+from afolu.defs.partitions import wanted_zones_partitions, year_partitions
 
 ins = {
     f"{label}_img": dg.AssetIn(["small", "class_mask", f"{label}_final"])
