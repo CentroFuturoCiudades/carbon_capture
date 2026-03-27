@@ -30,7 +30,7 @@ def emissions_plot(df_emissions: pd.DataFrame) -> Figure:
         df_emissions.query("time_period < 21")
         .filter([*list(name_map.keys()), "time_period"], axis="columns")
         .rename(columns=name_map)
-        .assign(time_period=lambda df: (df["time_period"] + 2000))
+        .assign(time_period=lambda df: df["time_period"] + 2000)
         .set_index("time_period")
     )
 

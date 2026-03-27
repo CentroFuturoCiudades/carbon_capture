@@ -23,7 +23,7 @@ def area_plot(df_area: pd.DataFrame) -> Figure:
     df_area = (
         df_area.set_index("label")
         .T.reset_index(names="year")
-        .assign(year=lambda df: (df["year"].astype(int) + 2000))
+        .assign(year=lambda df: df["year"].astype(int) + 2000)
         .query("2000 <= year <= 2020")
         .assign(year=lambda df: df["year"].astype(str))
         .set_index("year")

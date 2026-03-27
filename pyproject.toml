@@ -23,12 +23,13 @@ dependencies = [
     "setuptools>=80.7.0",
     "sisepuede",
     "toml>=0.10.2",
+    "xarray>=2025.11.0",
 ]
 
 [dependency-groups]
 dev = [
     "basedpyright>=1.29.1",
-    "ipykernel>=6.29.5",
+    "ipykernel<7",
     "notebook>=7.4.2",
     "pre-commit>=4.2.0",
 ]
@@ -42,7 +43,7 @@ ignore = ["**/*.ipynb", "**/dagster/*"]
 
 [tool.ruff.lint]
 select = ["ALL"]
-ignore = ["D"]
+ignore = ["D", "N803", "N806"]
 
 [tool.dg]
 directory_type = "project"

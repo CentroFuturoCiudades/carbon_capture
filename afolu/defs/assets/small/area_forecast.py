@@ -215,7 +215,9 @@ def area_forecast(
     context: dg.AssetExecutionContext,
     transitions: pd.DataFrame,
     df_area: pd.DataFrame,
-) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+) -> tuple[
+    pd.DataFrame, pd.DataFrame, pd.DataFrame
+]:  # pyright: ignore[reportInvalidTypeForm]
     scenario, _ = context.partition_key.split("|")
 
     transitions = transitions.set_index("time_period")
@@ -244,13 +246,17 @@ def area_forecast(
     total_area = total_area_frac.set_index("label").multiply(df_area.sum(axis=1).mean())
 
     if "area" in context.selected_output_names:
-        yield dg.Output(total_area, output_name="area")
+        yield dg.Output(
+            total_area, output_name="area"
+        )  # pyright: ignore[reportReturnType]
 
     if "area_frac" in context.selected_output_names:
-        yield dg.Output(total_area_frac.set_index("label"), output_name="area_frac")
+        yield dg.Output(
+            total_area_frac.set_index("label"), output_name="area_frac"
+        )  # pyright: ignore[reportReturnType]
 
     if "transitions" in context.selected_output_names:
-        yield dg.Output(
+        yield dg.Output(  # pyright: ignore[reportReturnType]
             total_transition.set_index("time_period"),
             output_name="transitions",
         )
