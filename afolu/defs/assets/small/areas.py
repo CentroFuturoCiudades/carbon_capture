@@ -8,11 +8,11 @@ from afolu.defs.assets.common import (
 from afolu.defs.assets.constants import LABEL_LIST
 from afolu.defs.partitions import wanted_zones_partitions, year_partitions
 
-ins = {
-    f"{label}_img": dg.AssetIn(["small", "class_mask", f"{label}_final"])
+ins: dict[str, dg.AssetIn] = {
+    f"{label}_img": dg.AssetIn(["small", "class_mask", f"{label}"])
     for label in LABEL_LIST
 }
-ins["grasslands_img"] = dg.AssetIn(["small", "class_mask", "grasslands_merged_final"])
+ins["grasslands_img"] = dg.AssetIn(["small", "class_mask", "grasslands_merged"])
 
 
 cross_partition_def = dg.MultiPartitionsDefinition(

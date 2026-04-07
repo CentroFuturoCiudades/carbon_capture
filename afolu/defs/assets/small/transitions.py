@@ -45,11 +45,11 @@ def transition_label_map() -> dict[int, list[str]]:
     return out
 
 
-ins = {
-    f"{label}_img": dg.AssetIn(["small", "class_mask", f"{label}_final"])
+ins: dict[str, dg.AssetIn] = {
+    f"{label}_img": dg.AssetIn(["small", "class_mask", f"{label}"])
     for label in LABEL_LIST
 }
-ins["grasslands_img"] = dg.AssetIn(["small", "class_mask", "grasslands_merged_final"])
+ins["grasslands_img"] = dg.AssetIn(["small", "class_mask", "grasslands_merged"])
 ins["bbox"] = dg.AssetIn(["small", "bbox", "ee"])
 
 
@@ -59,8 +59,7 @@ def transition_raster_factory(
 ) -> dg.AssetsDefinition:
     @dg.asset(
         ins=ins,
-        name=f"raster{name_suffix}",
-        key_prefix=["small", "transition"],
+        key=["small", "transition", f"raster{name_suffix}"],
         partitions_def=partitions_def,
         io_manager_key="ee_manager",
         group_name="small_transition",
@@ -128,8 +127,7 @@ def transition_table_factory(
     name_suffix: str = "",
 ) -> dg.AssetsDefinition:
     @dg.asset(
-        name=f"table{name_suffix}",
-        key_prefix=["small", "transition"],
+        key=["small", "transition", f"table{name_suffix}"],
         ins={
             "raster": dg.AssetIn(["small", "transition", f"raster{name_suffix}"]),
             "bbox": dg.AssetIn(["small", "bbox", "ee"]),

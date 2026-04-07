@@ -2,7 +2,7 @@ import ee
 
 import dagster as dg
 from afolu.defs.partitions import wanted_zones_partitions
-from afolu.defs.resources import AFOLUClassMapResource, ConfigResource, LabelResource
+from afolu.defs.resources import AFOLUClassMapResource, LabelResource
 
 
 def class_mask_factory(
@@ -104,8 +104,7 @@ def pastures_factory(
     partitions_def: dg.PartitionsDefinition | None = None,
 ) -> dg.AssetsDefinition:
     @dg.asset(
-        name="pastures",
-        key_prefix=[top_prefix, "class_mask"],
+        key=[top_prefix, "class_mask", "pastures"],
         ins={
             "grasslands_to_pastures_img": dg.AssetIn(
                 [top_prefix, "class_mask", "grasslands_to_pastures"],
@@ -165,89 +164,89 @@ def foo(img: ee.image.Image, prev: ee.image.Image) -> ee.image.Image:
     return img.bitwiseOr(prev)
 
 
-def settlements_fixed_factory(
-    top_prefix: str,
-    partitions_def: dg.PartitionsDefinition | None = None,
-) -> dg.AssetsDefinition:
-    @dg.asset(
-        name="settlements_fixed",
-        key_prefix=[top_prefix, "class_mask"],
-        ins={
-            "settlements_mask": dg.AssetIn([top_prefix, "class_mask", "settlements"]),
-        },
-        partitions_def=partitions_def,
-        io_manager_key="ee_manager",
-        group_name=f"{top_prefix}_class_mask",
-    )
-    def _asset(settlements_mask: ee.image.Image) -> ee.image.Image:
-        final_idx = 25
-        bands = []
-        for end_idx in range(2, final_idx):
-            col = ee.imagecollection.ImageCollection.fromImages(
-                [settlements_mask.select(f"b{i}") for i in range(1, end_idx)],
-            )
-            res = ee.image.Image(col.iterate(foo, ee.image.Image.constant(0)))
-            bands.append(res)
+# def settlements_fixed_factory(
+#     top_prefix: str,
+#     partitions_def: dg.PartitionsDefinition | None = None,
+# ) -> dg.AssetsDefinition:
+#     @dg.asset(
+#         name="settlements_fixed",
+#         key_prefix=[top_prefix, "class_mask"],
+#         ins={
+#             "settlements_mask": dg.AssetIn([top_prefix, "class_mask", "settlements"]),
+#         },
+#         partitions_def=partitions_def,
+#         io_manager_key="ee_manager",
+#         group_name=f"{top_prefix}_class_mask",
+#     )
+#     def _asset(settlements_mask: ee.image.Image) -> ee.image.Image:
+#         final_idx = 25
+#         bands = []
+#         for end_idx in range(2, final_idx):
+#             col = ee.imagecollection.ImageCollection.fromImages(
+#                 [settlements_mask.select(f"b{i}") for i in range(1, end_idx)],
+#             )
+#             res = ee.image.Image(col.iterate(foo, ee.image.Image.constant(0)))
+#             bands.append(res)
 
-        return (
-            ee.imagecollection.ImageCollection.fromImages(bands)
-            .toBands()
-            .rename([f"b{i}" for i in range(1, final_idx - 1)])
-        )
+#         return (
+#             ee.imagecollection.ImageCollection.fromImages(bands)
+#             .toBands()
+#             .rename([f"b{i}" for i in range(1, final_idx - 1)])
+#         )
 
-    return _asset
-
-
-def final_mask_factory(
-    top_prefix: str,
-    class_name: str,
-    partitions_def: dg.PartitionsDefinition | None,
-) -> dg.AssetsDefinition:
-    @dg.asset(
-        name=f"{class_name}_final",
-        key_prefix=[top_prefix, "class_mask"],
-        ins={
-            "class_mask": dg.AssetIn([top_prefix, "class_mask", class_name]),
-            "settlements_mask": dg.AssetIn(
-                [top_prefix, "class_mask", "settlements_fixed"],
-            ),
-        },
-        partitions_def=partitions_def,
-        io_manager_key="ee_manager",
-        group_name=f"{top_prefix}_class_mask",
-    )
-    def _asset(
-        config_resource: ConfigResource,
-        class_mask: ee.image.Image,
-        settlements_mask: ee.image.Image,
-    ) -> ee.image.Image:
-        if config_resource.fix_settlements:
-            return class_mask.And(settlements_mask.Not())
-        return class_mask
-
-    return _asset
+#     return _asset
 
 
-def settlements_final_mask_factory(
-    top_prefix: str,
-    partitions_def: dg.PartitionsDefinition | None,
-) -> dg.AssetsDefinition:
-    @dg.asset(
-        name="settlements_final",
-        key_prefix=[top_prefix, "class_mask"],
-        ins={
-            "settlements_mask": dg.AssetIn(
-                [top_prefix, "class_mask", "settlements_fixed"],
-            ),
-        },
-        partitions_def=partitions_def,
-        io_manager_key="ee_manager",
-        group_name=f"{top_prefix}_class_mask",
-    )
-    def _asset(settlements_mask: ee.image.Image) -> ee.image.Image:
-        return settlements_mask
+# def final_mask_factory(
+#     top_prefix: str,
+#     class_name: str,
+#     partitions_def: dg.PartitionsDefinition | None,
+# ) -> dg.AssetsDefinition:
+#     @dg.asset(
+#         name=f"{class_name}_final",
+#         key_prefix=[top_prefix, "class_mask"],
+#         ins={
+#             "class_mask": dg.AssetIn([top_prefix, "class_mask", class_name]),
+#             "settlements_mask": dg.AssetIn(
+#                 [top_prefix, "class_mask", "settlements_fixed"],
+#             ),
+#         },
+#         partitions_def=partitions_def,
+#         io_manager_key="ee_manager",
+#         group_name=f"{top_prefix}_class_mask",
+#     )
+#     def _asset(
+#         config_resource: ConfigResource,
+#         class_mask: ee.image.Image,
+#         settlements_mask: ee.image.Image,
+#     ) -> ee.image.Image:
+#         if config_resource.fix_settlements:
+#             return class_mask.And(settlements_mask.Not())
+#         return class_mask
 
-    return _asset
+#     return _asset
+
+
+# def settlements_final_mask_factory(
+#     top_prefix: str,
+#     partitions_def: dg.PartitionsDefinition | None,
+# ) -> dg.AssetsDefinition:
+#     @dg.asset(
+#         name="settlements_final",
+#         key_prefix=[top_prefix, "class_mask"],
+#         ins={
+#             "settlements_mask": dg.AssetIn(
+#                 [top_prefix, "class_mask", "settlements_fixed"],
+#             ),
+#         },
+#         partitions_def=partitions_def,
+#         io_manager_key="ee_manager",
+#         group_name=f"{top_prefix}_class_mask",
+#     )
+#     def _asset(settlements_mask: ee.image.Image) -> ee.image.Image:
+#         return settlements_mask
+
+#     return _asset
 
 
 assets = (
@@ -278,7 +277,6 @@ assets = (
             forests_secondary_factory,
             pastures_factory,
             grasslands_merged_factory,
-            settlements_fixed_factory,
         )
         for top_prefix, partitions_def in zip(
             ["amazon", "mexico", "small"],
@@ -286,32 +284,32 @@ assets = (
             strict=True,
         )
     ]
-    + [
-        final_mask_factory(top_prefix, class_name, partitions_def)
-        for class_name in [
-            "croplands",
-            "flooded",
-            "forests_mangroves",
-            "forests_primary",
-            "forests_secondary",
-            "grasslands_merged",
-            "other",
-            "pastures",
-            "shrublands",
-            "wetlands",
-        ]
-        for top_prefix, partitions_def in zip(
-            ["amazon", "mexico", "small"],
-            [None, None, wanted_zones_partitions],
-            strict=True,
-        )
-    ]
-    + [
-        settlements_final_mask_factory(top_prefix, partitions_def)
-        for top_prefix, partitions_def in zip(
-            ["amazon", "mexico", "small"],
-            [None, None, wanted_zones_partitions],
-            strict=True,
-        )
-    ]
+    # + [
+    #     final_mask_factory(top_prefix, class_name, partitions_def)
+    #     for class_name in [
+    #         "croplands",
+    #         "flooded",
+    #         "forests_mangroves",
+    #         "forests_primary",
+    #         "forests_secondary",
+    #         "grasslands_merged",
+    #         "other",
+    #         "pastures",
+    #         "shrublands",
+    #         "wetlands",
+    #     ]
+    #     for top_prefix, partitions_def in zip(
+    #         ["amazon", "mexico", "small"],
+    #         [None, None, wanted_zones_partitions],
+    #         strict=True,
+    #     )
+    # ]
+    # + [
+    #     settlements_final_mask_factory(top_prefix, partitions_def)
+    #     for top_prefix, partitions_def in zip(
+    #         ["amazon", "mexico", "small"],
+    #         [None, None, wanted_zones_partitions],
+    #         strict=True,
+    #     )
+    # ]
 )

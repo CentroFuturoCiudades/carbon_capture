@@ -2,6 +2,7 @@ from pathlib import Path
 
 import ee
 import toml
+from dagster_components.resources import PostGISResource
 
 import dagster as dg
 from afolu.defs.managers import (
@@ -25,48 +26,6 @@ from afolu.defs.resources import (
 )
 
 ee.Initialize(project="ee-ursa-test")
-
-
-# # Definitions
-# defs = dg.Definitions.merge(
-#     dg.Definitions(
-#         assets=(
-#             list(
-#                 dg.load_assets_from_modules(
-#                     [
-#                         assets.bbox,
-#                         assets.class_masks,
-#                         assets.load,
-#                         assets.emissions,
-#                         assets.zones,
-#                         # assets.stats,
-#                         # assets.rasters,
-#                     ],
-#                 ),
-#             )
-#         ),
-#         resources=dict(
-#             class_map_resource=class_map_resource,
-#             path_resource=path_resource,
-#             dataframe_manager=dataframe_manager,
-#             ee_manager=ee_manager,
-#             geodataframe_manager=geodataframe_manager,
-#             json_manager=json_manager,
-#             numpy_manager=numpy_manager,
-#             raster_manager=raster_manager,
-#             shapely_manager=shapely_manager,
-#             text_manager=text_manager,
-#             selected_area_resource=selected_area_resource,
-#             zone_buffer_resource=zone_buffer_resource,
-#             figure_manager=figure_manager,
-#             config_resource=config_resource,
-#             **all_resources_map,
-#         ),
-#     ),
-#     assets.plot.defs,
-#     assets.large.defs,
-#     assets.small.defs,
-# )
 
 
 @dg.definitions
@@ -106,58 +65,55 @@ def defs() -> dg.Definitions:
     )
 
     # Managers
-    dataframe_manager = DataFrameManager(
-        path_resource=path_resource,
-        extension=".csv",
-    )
-    ee_manager = EarthEngineManager(
-        path_resource=path_resource,
-        extension=".json",
-    )
-    geodataframe_manager = GeoDataFrameManager(
-        path_resource=path_resource,
-        extension=".gpkg",
-    )
-    json_manager = JSONManager(
-        path_resource=path_resource,
-        extension=".json",
-    )
-    numpy_manager = NumPyManager(
-        path_resource=path_resource,
-        extension=".npy",
-    )
-    raster_manager = RasterManager(
-        path_resource=path_resource,
-        extension=".tif",
-    )
-    shapely_manager = ShapelyManager(
-        path_resource=path_resource,
-        extension=".json",
-    )
-    text_manager = TextManager(
-        path_resource=path_resource,
-        extension=".txt",
-    )
-    figure_manager = FigureManager(
-        path_resource=path_resource,
-        extension=".jpg",
-    )
-
     extra_defs = dg.Definitions(
         resources=dict(
             class_map_resource=class_map_resource,
             path_resource=path_resource,
-            dataframe_manager=dataframe_manager,
-            ee_manager=ee_manager,
-            geodataframe_manager=geodataframe_manager,
-            json_manager=json_manager,
-            numpy_manager=numpy_manager,
-            raster_manager=raster_manager,
-            shapely_manager=shapely_manager,
-            text_manager=text_manager,
+            dataframe_manager=DataFrameManager(
+                path_resource=path_resource,
+                extension=".csv",
+            ),
+            ee_manager=EarthEngineManager(
+                path_resource=path_resource,
+                extension=".json",
+            ),
+            geodataframe_manager=GeoDataFrameManager(
+                path_resource=path_resource,
+                extension=".gpkg",
+            ),
+            json_manager=JSONManager(
+                path_resource=path_resource,
+                extension=".json",
+            ),
+            numpy_manager=NumPyManager(
+                path_resource=path_resource,
+                extension=".npy",
+            ),
+            raster_manager=RasterManager(
+                path_resource=path_resource,
+                extension=".tif",
+            ),
+            shapely_manager=ShapelyManager(
+                path_resource=path_resource,
+                extension=".json",
+            ),
+            text_manager=TextManager(
+                path_resource=path_resource,
+                extension=".txt",
+            ),
             selected_area_resource=selected_area_resource,
             zone_buffer_resource=zone_buffer_resource,
-            figure_manager=figure_manager,
+            figure_manager=FigureManager(
+                path_resource=path_resource,
+                extension=".jpg",
+            ),
+            postgis_resource=PostGISResource(
+                user=dg.EnvVar("POSTGRES_USER"),
+                password=dg.EnvVar("POSTGRES_PASSWORD"),
+                host=dg.EnvVar("POSTGRES_HOST"),
+                port=dg.EnvVar("POSTGRES_PORT"),
+                db=dg.EnvVar("POSTGRES_DB"),
+            ),
             config_resource=config_resource,
             **all_resources_map,
         ),

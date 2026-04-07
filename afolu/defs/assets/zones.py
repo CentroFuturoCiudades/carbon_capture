@@ -3,6 +3,7 @@ from pathlib import Path
 
 import geopandas as gpd
 import pandas as pd
+from dagster_components.resources import PostGISResource
 
 import dagster as dg
 from afolu.defs.assets.constants import CODE_TO_MEXICO_CITY_MAP
@@ -117,24 +118,27 @@ def get_data_from_polygons(
     ).to_crs("EPSG:4326")
 
 
-def get_data_from_mexico(path_resource: PathResource, city: str) -> gpd.GeoDataFrame:
-    population_grids_path = Path(path_resource.population_grids_path)
-
+def get_data_from_mexico(
+    postgis_resource: PostGISResource, city: str
+) -> gpd.GeoDataFrame:
     city_to_code_map = {value: key for key, value in CODE_TO_MEXICO_CITY_MAP.items()}
 
     if city not in city_to_code_map:
         err = f"City {city} not found in Mexico city code map"
         raise ValueError(err)
 
-    code = city_to_code_map[city]
-    return gpd.read_file(
-        population_grids_path
-        / "final"
-        / "zone_agebs"
-        / "shaped"
-        / "2020"
-        / f"{code}.gpkg",
-    ).to_crs("EPSG:4326")[["geometry"]]
+    with postgis_resource.connect() as conn:
+        return gpd.read_postgis(
+            """
+            SELECT census_2020_ageb.geometry from census_2020_ageb
+            INNER JOIN census_2020_mun
+                ON census_2020_ageb.cve_mun = census_2020_mun.cvegeo
+            WHERE census_2020_mun.cve_met = %(zone)s
+            """,
+            conn,
+            params={"zone": city_to_code_map[city]},
+            geom_col="geometry",
+        ).to_crs("EPSG:4326")[["geometry"]]
 
 
 @dg.asset(
@@ -148,6 +152,7 @@ def get_data_from_mexico(path_resource: PathResource, city: str) -> gpd.GeoDataF
 def zones(
     context: dg.AssetExecutionContext,
     path_resource: PathResource,
+    postgis_resource: PostGISResource,
 ) -> gpd.GeoDataFrame:
     data_path = Path(path_resource.data_path)
     amazonas_path = Path(path_resource.amazonas_path)
@@ -163,7 +168,7 @@ def zones(
     country_iso, city = context.partition_key.split("+")
 
     if country_iso == "MEX":
-        return get_data_from_mexico(path_resource, city)
+        return get_data_from_mexico(postgis_resource, city)
 
     df_fua = gpd.read_file(
         ghsl_path / "GHS_FUA_UCDB2015_GLOBE_R2019A_54009_1K_V1_0.gpkg",

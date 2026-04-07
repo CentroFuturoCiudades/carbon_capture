@@ -7,6 +7,7 @@ requires-python = ">=3.11"
 dependencies = [
     "contextily>=1.6.2",
     "dagster>=1.10.12",
+    "dagster-components",
     "dagster-dg-cli>=1.12.3",
     "dagster-webserver>=1.10.12",
     "earthengine-api>=1.5.13",
@@ -17,6 +18,7 @@ dependencies = [
     "pandas>=2.2.3",
     "pandas-stubs>=2.2.3.250308",
     "plotly>=6.0.1",
+    "psycopg2>=2.9.11",
     "python-dotenv>=1.1.0",
     "scikit-learn>=1.7.0",
     "seaborn>=0.13.2",
@@ -28,22 +30,17 @@ dependencies = [
 
 [dependency-groups]
 dev = [
-    "basedpyright>=1.29.1",
     "ipykernel<7",
-    "notebook>=7.4.2",
     "pre-commit>=4.2.0",
 ]
 
 [tool.uv.sources]
 sisepuede = { git = "https://github.com/RodolfoFigueroa/sisepuede/" }
-
-[tool.basedpyright]
-typeCheckingMode = "standard"
-ignore = ["**/*.ipynb", "**/dagster/*"]
+dagster-components = { git = "https://github.com/RodolfoFigueroa/dagster-components" }
 
 [tool.ruff.lint]
 select = ["ALL"]
-ignore = ["D", "N803", "N806"]
+ignore = ["D", "COM812", "PLR0913"]
 
 [tool.dg]
 directory_type = "project"
