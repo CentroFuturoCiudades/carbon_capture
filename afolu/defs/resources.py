@@ -1,10 +1,16 @@
 import dagster as dg
 
 
+class ConfigResource(dg.ConfigurableResource):
+    fix_settlements: bool
+
+
 class PathResource(dg.ConfigurableResource):
     ghsl_path: str
     data_path: str
     population_grids_path: str
+    amazonas_path: str
+    natural_oceans_path: str
 
 
 class LabelResource(dg.ConfigurableResource):
@@ -26,3 +32,7 @@ class AFOLUClassMapResource(dg.ConfigurableResource):
 
 class SelectedAreaResource(dg.ConfigurableResource):
     selected_area: str
+
+
+class ZoneBufferResource(dg.ConfigurableResource):
+    buffers: dict[str, float]

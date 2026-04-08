@@ -2,15 +2,15 @@ import ee
 import pandas as pd
 
 import dagster as dg
-from afolu.assets.common import (
+from afolu.defs.assets.common import (
     get_raster_area,
     transition_cube_factory,
     transition_table_fixed_factory,
     transition_table_frac_factory,
     year_to_band_name,
 )
-from afolu.assets.constants import LABEL_LIST
-from afolu.partitions import label_pair_partitions, year_pair_partitions
+from afolu.defs.assets.constants import LABEL_LIST
+from afolu.defs.partitions import label_pair_partitions, year_pair_partitions
 
 cross_partitions_def = dg.MultiPartitionsDefinition(
     {

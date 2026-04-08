@@ -2,23 +2,29 @@ import ee
 import pandas as pd
 
 import dagster as dg
-from afolu.assets.common import (
+from afolu.defs.assets.common import (
     year_to_band_name,
 )
-from afolu.assets.constants import LABEL_LIST
-from afolu.partitions import year_partitions
+from afolu.defs.assets.constants import LABEL_LIST
+from afolu.defs.partitions import wanted_zones_partitions, year_partitions
 
-ins = {
-    f"{label}_img": dg.AssetIn(["small", "class_mask", label]) for label in LABEL_LIST
+ins: dict[str, dg.AssetIn] = {
+    f"{label}_img": dg.AssetIn(["small", "class_mask", f"{label}"])
+    for label in LABEL_LIST
 }
 ins["grasslands_img"] = dg.AssetIn(["small", "class_mask", "grasslands_merged"])
+
+
+cross_partition_def = dg.MultiPartitionsDefinition(
+    {"year": year_partitions, "zone": wanted_zones_partitions},
+)
 
 
 @dg.asset(
     name="raster",
     key_prefix=["small", "area"],
     ins=ins,
-    partitions_def=year_partitions,
+    partitions_def=cross_partition_def,
     io_manager_key="ee_manager",
     group_name="small_area",
 )
@@ -36,7 +42,9 @@ def area_raster(
     shrublands_img: ee.image.Image,
     wetlands_img: ee.image.Image,
 ) -> ee.image.Image:
-    band = year_to_band_name(context.partition_key)
+    year, _ = context.partition_key.split("|")
+
+    band = year_to_band_name(year)
 
     img_map = {
         "croplands": croplands_img,
@@ -66,7 +74,7 @@ def area_raster(
         "img": dg.AssetIn(["small", "area", "raster"]),
         "bbox": dg.AssetIn(["small", "bbox", "ee"]),
     },
-    partitions_def=year_partitions,
+    partitions_def=cross_partition_def,
     io_manager_key="dataframe_manager",
     group_name="small_area",
 )
@@ -104,31 +112,25 @@ def area_table(img: ee.image.Image, bbox: ee.geometry.Geometry) -> pd.DataFrame:
     ins={
         "table_map": dg.AssetIn(["small", "area", "table"]),
     },
+    partitions_def=wanted_zones_partitions,
     io_manager_key="dataframe_manager",
     group_name="small_area",
 )
 def area_table_merged(table_map: dict[str, pd.DataFrame]) -> pd.DataFrame:
     out = []
-    for year, df in table_map.items():
+    for key, df in table_map.items():
+        year, _ = key.split("|")
         temp = df.assign(year=int(year) - 2000)
         out.append(temp)
 
-    return (
+    out = (
         pd.concat(out)
         .pivot_table(index="label", columns="year", values="area")
         .divide(10_000)
     )
 
+    for label in LABEL_LIST:
+        if label not in out.index:
+            out.loc[label] = 0.1
 
-@dg.asset(
-    name="table_frac",
-    key_prefix=["small", "area"],
-    ins={
-        "table": dg.AssetIn(["small", "area", "table_merged"]),
-    },
-    io_manager_key="dataframe_manager",
-    group_name="small_area",
-)
-def area_table_frac(table: pd.DataFrame) -> pd.DataFrame:
-    table = table.set_index("label")
-    return table.div(table.sum(axis=0), axis=1)
+    return out.sort_index().sort_index(axis=1)

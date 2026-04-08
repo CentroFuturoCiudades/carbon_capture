@@ -1,0 +1,4 @@
+mpl-chord-diagram
+matplotlib
+numpy
+pandas
